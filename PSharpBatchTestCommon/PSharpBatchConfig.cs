@@ -61,10 +61,13 @@ namespace PSharpBatchTestCommon
 
         public class PSharpCommandEntities
         {
+
             public int NumberOfParallelTasks;
             public int IterationsPerTask;
             public string TestApplicationPath;
             public string CommandFlags;
+            public string CommandName;
+            public string SchedulingStratergy;
 
             public PSharpCommandEntities()
             {

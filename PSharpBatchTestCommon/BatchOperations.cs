@@ -232,18 +232,47 @@ namespace PSharpBatchTestCommon
         /// <returns></returns>
         public async Task<List<CloudTask>> AddTasksFromCommandEntities(string jobId, string taskIDPrefix, List<ResourceFile> inputFiles, List<PSharpCommandEntities> CommandEntities)
         {
+            List<CloudTask> tasks = new List<CloudTask>();
             //Creating tasks with iterations
             List<string> taskCommands = new List<string>();
             foreach(var entity in CommandEntities)
             {
                 for (int i = 0; i < entity.NumberOfParallelTasks; i++)
                 {
-                    var command = string.Format(Constants.PSharpTaskCommandFormatWithFlags, Path.GetFileName(entity.TestApplicationPath), entity.IterationsPerTask, entity.CommandFlags);
+                    //Todo: Incase of Portfolio : give additional flags /testing-process-id: along with /sch:portfolio
+
+                    string command = string.Empty;
+                    if (string.IsNullOrEmpty(entity.SchedulingStratergy))
+                    {
+                        //No shceduling statergy provided
+                        command = string.Format(Constants.PSharpTaskCommandFormatWithFlags, Path.GetFileName(entity.TestApplicationPath), entity.IterationsPerTask, entity.CommandFlags);
+                    }
+                    else
+                    {
+                        //Schduling stratergy provided. In case of portfolio testing-process-id is added.
+                        string schFlag = string.Empty;
+                        if (entity.SchedulingStratergy.ToLower().Equals("portfolio"))
+                        {
+                            schFlag = "/sch:" + entity.SchedulingStratergy + " /testing-process-id:" + i;
+                        }
+                        else
+                        {
+                            schFlag = "/sch:" + entity.SchedulingStratergy;
+                        }
+                        command = string.Format(Constants.PSharpTaskCommandFormatWithSchFlags, Path.GetFileName(entity.TestApplicationPath), entity.IterationsPerTask, entity.CommandFlags, schFlag);
+                    }
                     taskCommands.Add(command);
+                    string taskId = taskIDPrefix + entity.CommandName + i;
+                    string taskCommandLine = command;
+                    CloudTask task = new CloudTask(taskId, taskCommandLine);
+                    task.ResourceFiles = inputFiles;
+                    tasks.Add(task);
                 }
             }
+            Console.WriteLine("Adding {0} tasks to job [{1}]...", tasks.Count, jobId);
+            await batchClient.JobOperations.AddTaskAsync(jobId, tasks);
 
-            return await AddTasksAsync(jobId, taskIDPrefix, inputFiles, taskCommands);
+            return tasks;
         }
 
         /// <summary>
