@@ -54,17 +54,23 @@ namespace PSharpBatchTestCommon
         //[XmlIgnore]
         //public string TestApplicationPath;
 
-        [XmlArray("Commands")]
-        [XmlArrayItem("Command")]
-        public List<PSharpCommandEntities> CommandEntities;
+        [XmlArray("Tests")]
+        [XmlArrayItem("Test")]
+        public List<PSharpTestEntities> TestEntities;
 
+        public class PSharpTestEntities
+        {
+            public string ApplicationPath;
+
+            [XmlElement("Command")]
+            public PSharpCommandEntities[] CommandEntities;
+        }
 
         public class PSharpCommandEntities
         {
 
             public int NumberOfParallelTasks;
             public int IterationsPerTask;
-            public string TestApplicationPath;
             public string CommandFlags;
             public string CommandName;
             public string SchedulingStratergy;
@@ -77,8 +83,8 @@ namespace PSharpBatchTestCommon
 
             public override string ToString()
             {
-                string format = "NumberOfParallelTasks:{0}\nIterations:{1}\nApplicationPath:{2}\nCommandFlags:{3}";
-                return string.Format(format, NumberOfParallelTasks, IterationsPerTask, TestApplicationPath, CommandFlags);
+                string format = "NumberOfParallelTasks:{0}\nIterations:{1}\nCommandFlags:{3}";
+                return string.Format(format, NumberOfParallelTasks, IterationsPerTask, CommandFlags);
             }
         }
 

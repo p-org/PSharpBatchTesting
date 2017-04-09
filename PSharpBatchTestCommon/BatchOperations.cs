@@ -20,14 +20,8 @@ namespace PSharpBatchTestCommon
         private string BatchAccountKey;
         private string BatchAccountUrl;
 
-        // Storage account credentials
-        private string StorageAccountName;
-        private string StorageAccountKey;
-
         BatchSharedKeyCredentials credentials;
         BatchClient batchClient;
-
-        static Dictionary<string, CloudJob> jobsDictionary;
 
         public BatchOperations(string BatchAccountName, string BatchAccountKey, string BatchAccountUrl)
         {
@@ -223,52 +217,57 @@ namespace PSharpBatchTestCommon
         }
 
         /// <summary>
-        /// Adds tasks from Command entities containing multiple test commands
+        /// Adds tasks from Test entities containing multiple test commands
         /// </summary>
         /// <param name="jobId"></param>
         /// <param name="taskIDPrefix"></param>
         /// <param name="inputFiles"></param>
         /// <param name="CommandEntities"></param>
         /// <returns></returns>
-        public async Task<List<CloudTask>> AddTasksFromCommandEntities(string jobId, string taskIDPrefix, List<ResourceFile> inputFiles, List<PSharpCommandEntities> CommandEntities)
+        public async Task<List<CloudTask>> AddTasksFromTestEntities(string jobId, string taskIDPrefix, List<ResourceFile> inputFiles, List<PSharpTestEntities> TestEntities)
         {
             List<CloudTask> tasks = new List<CloudTask>();
             //Creating tasks with iterations
             List<string> taskCommands = new List<string>();
-            foreach(var entity in CommandEntities)
-            {
-                for (int i = 0; i < entity.NumberOfParallelTasks; i++)
-                {
-                    //Todo: Incase of Portfolio : give additional flags /testing-process-id: along with /sch:portfolio
 
-                    string command = string.Empty;
-                    if (string.IsNullOrEmpty(entity.SchedulingStratergy))
+            foreach(var tEntity in TestEntities)
+            {
+                foreach(var cEntity in tEntity.CommandEntities)
+                {
+                    for (int i = 0; i < cEntity.NumberOfParallelTasks; i++)
                     {
-                        //No shceduling statergy provided
-                        command = string.Format(Constants.PSharpTaskCommandFormatWithFlags, Path.GetFileName(entity.TestApplicationPath), entity.IterationsPerTask, entity.CommandFlags);
-                    }
-                    else
-                    {
-                        //Schduling stratergy provided. In case of portfolio testing-process-id is added.
-                        string schFlag = string.Empty;
-                        if (entity.SchedulingStratergy.ToLower().Equals("portfolio"))
+                        //Todo: Incase of Portfolio : give additional flags /testing-process-id: along with /sch:portfolio
+
+                        string command = string.Empty;
+                        if (string.IsNullOrEmpty(cEntity.SchedulingStratergy))
                         {
-                            schFlag = "/sch:" + entity.SchedulingStratergy + " /testing-process-id:" + i;
+                            //No shceduling statergy provided
+                            command = string.Format(Constants.PSharpTaskCommandFormatWithFlags, Path.GetFileName(tEntity.ApplicationPath), cEntity.IterationsPerTask, cEntity.CommandFlags);
                         }
                         else
                         {
-                            schFlag = "/sch:" + entity.SchedulingStratergy;
+                            //Schduling stratergy provided. In case of portfolio testing-process-id is added.
+                            string schFlag = string.Empty;
+                            if (cEntity.SchedulingStratergy.ToLower().Equals("portfolio"))
+                            {
+                                schFlag = "/sch:" + cEntity.SchedulingStratergy + " /testing-process-id:" + i;
+                            }
+                            else
+                            {
+                                schFlag = "/sch:" + cEntity.SchedulingStratergy;
+                            }
+                            command = string.Format(Constants.PSharpTaskCommandFormatWithSchFlags, Path.GetFileName(tEntity.ApplicationPath), cEntity.IterationsPerTask, cEntity.CommandFlags, schFlag);
                         }
-                        command = string.Format(Constants.PSharpTaskCommandFormatWithSchFlags, Path.GetFileName(entity.TestApplicationPath), entity.IterationsPerTask, entity.CommandFlags, schFlag);
+                        taskCommands.Add(command);
+                        string taskId = taskIDPrefix + "Test" + TestEntities.IndexOf(tEntity) + cEntity.CommandName + i;
+                        string taskCommandLine = command;
+                        CloudTask task = new CloudTask(taskId, taskCommandLine);
+                        task.ResourceFiles = inputFiles;
+                        tasks.Add(task);
                     }
-                    taskCommands.Add(command);
-                    string taskId = taskIDPrefix + entity.CommandName + i;
-                    string taskCommandLine = command;
-                    CloudTask task = new CloudTask(taskId, taskCommandLine);
-                    task.ResourceFiles = inputFiles;
-                    tasks.Add(task);
                 }
             }
+
             Console.WriteLine("Adding {0} tasks to job [{1}]...", tasks.Count, jobId);
             await batchClient.JobOperations.AddTaskAsync(jobId, tasks);
 

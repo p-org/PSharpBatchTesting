@@ -141,14 +141,14 @@ namespace PSharpBatchTestCommon
             return inputFiles;
         }
 
-        public async Task<List<ResourceFile>> UploadInputFilesFromCommandEntities(List<PSharpCommandEntities> CommandEntites, string poolId, string jobId)
+        public async Task<List<ResourceFile>> UploadInputFilesFromTestEntities(List<PSharpTestEntities> TestEntities, string poolId, string jobId)
         {
             inputContainerName = string.Format(Constants.InputContainerNameFormat, poolId.ToLower(), jobId.ToLower());
             await CreateContainerIfNotExistAsync(inputContainerName);
             inputFiles = new List<ResourceFile>();
             //inputFiles = await UploadFilesAndFoldersToContainerAsync(inputContainerName, inputFilePaths);
             //Creating application hashset
-            HashSet<string> applicationPaths = new HashSet<string>(CommandEntites.Select(ce => Path.GetFullPath(ce.TestApplicationPath)));
+            HashSet<string> applicationPaths = new HashSet<string>(TestEntities.Select(ce => Path.GetFullPath(ce.ApplicationPath)));
             foreach(var filePath in applicationPaths)
             {
                 inputFiles.AddRange(await UploadDllsAndDependenciesAsync(inputContainerName, filePath));
