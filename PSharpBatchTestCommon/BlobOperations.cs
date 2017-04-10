@@ -27,10 +27,12 @@ namespace PSharpBatchTestCommon
         List<ResourceFile> nodeFiles;
         List<ResourceFile> jobManagerFiles;
         List<ResourceFile> inputFiles;
+        Dictionary<PSharpTestEntities, List<ResourceFile>> inputFilesDict;
         string nodeContainerName;
         string inputContainerName;
         string outputContainerName;
         string jobManagerContainerName;
+        List<string> inputContainers;
 
         //Other constants
         int ContainerExpiryHours;
@@ -141,19 +143,32 @@ namespace PSharpBatchTestCommon
             return inputFiles;
         }
 
-        public async Task<List<ResourceFile>> UploadInputFilesFromTestEntities(List<PSharpTestEntities> TestEntities, string poolId, string jobId)
+        public async Task<Dictionary<PSharpTestEntities, List<ResourceFile>>> UploadInputFilesFromTestEntities(List<PSharpTestEntities> TestEntities, string poolId, string jobId)
         {
-            inputContainerName = string.Format(Constants.InputContainerNameFormat, poolId.ToLower(), jobId.ToLower());
-            await CreateContainerIfNotExistAsync(inputContainerName);
+
+            //inputContainerName = string.Format(Constants.InputContainerNameFormat, poolId.ToLower(), jobId.ToLower());
+            //await CreateContainerIfNotExistAsync(inputContainerName);
             inputFiles = new List<ResourceFile>();
-            //inputFiles = await UploadFilesAndFoldersToContainerAsync(inputContainerName, inputFilePaths);
+            inputFilesDict = new Dictionary<PSharpTestEntities, List<ResourceFile>>();
+            inputContainers = new List<string>();
+            
             //Creating application hashset
             HashSet<string> applicationPaths = new HashSet<string>(TestEntities.Select(ce => Path.GetFullPath(ce.ApplicationPath)));
+            int i = 0;
             foreach(var filePath in applicationPaths)
             {
-                inputFiles.AddRange(await UploadDllsAndDependenciesAsync(inputContainerName, filePath));
+                var containerName = string.Format(Constants.InputContainerNameFormatForTestEntity, poolId.ToLower(), jobId.ToLower(), i);
+                i++;
+                await CreateContainerIfNotExistAsync(containerName);
+                inputContainers.Add(containerName);
+                //inputFiles.AddRange(await UploadDllsAndDependenciesAsync(inputContainerName, filePath));
+                var resFiles = await UploadDllsAndDependenciesAsync(containerName, filePath);
+                foreach(var tEntities in TestEntities.Where(t=>t.ApplicationPath.Equals(filePath)))
+                {
+                    inputFilesDict.Add(tEntities, resFiles);
+                }
             }
-            return inputFiles;
+            return inputFilesDict;
         }
 
         /// <summary>
@@ -164,7 +179,11 @@ namespace PSharpBatchTestCommon
         {
             try
             {
-                await DeleteContainerAsync(inputContainerName);
+                //await DeleteContainerAsync(inputContainerName);
+                foreach(var container in inputContainers)
+                {
+                    await DeleteContainerAsync(container);
+                }
             }
             catch (Exception exp) { return; }
         }

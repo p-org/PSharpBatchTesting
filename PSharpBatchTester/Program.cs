@@ -130,7 +130,7 @@ namespace PSharpBatchTester
             JobId = config.JobDefaultId + jobTimeStamp;
 
             //Uploading the data files to azure storage and get the resource objects.
-            var inputFiles = await blobOperations.UploadInputFilesFromTestEntities(config.TestEntities, config.PoolId, JobId);
+            var inputFilesDict = await blobOperations.UploadInputFilesFromTestEntities(config.TestEntities, config.PoolId, JobId);
 
             //Uploading JobManager Files
             var jobManagerFiles = await blobOperations.UploadJobManagerFiles(jobManagerFilePath, config.PoolId, JobId);
@@ -152,7 +152,7 @@ namespace PSharpBatchTester
                 (
                     jobId: JobId,
                     taskIDPrefix: config.TaskDefaultId,
-                    inputFiles: inputFiles,
+                    inputFilesDict: inputFilesDict,
                     TestEntities: config.TestEntities
                 );
 

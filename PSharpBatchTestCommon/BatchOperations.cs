@@ -221,10 +221,10 @@ namespace PSharpBatchTestCommon
         /// </summary>
         /// <param name="jobId"></param>
         /// <param name="taskIDPrefix"></param>
-        /// <param name="inputFiles"></param>
+        /// <param name="inputFilesDict"></param>
         /// <param name="CommandEntities"></param>
         /// <returns></returns>
-        public async Task<List<CloudTask>> AddTasksFromTestEntities(string jobId, string taskIDPrefix, List<ResourceFile> inputFiles, List<PSharpTestEntities> TestEntities)
+        public async Task<List<CloudTask>> AddTasksFromTestEntities(string jobId, string taskIDPrefix, Dictionary<PSharpTestEntities, List<ResourceFile>> inputFilesDict, List<PSharpTestEntities> TestEntities)
         {
             List<CloudTask> tasks = new List<CloudTask>();
             //Creating tasks with iterations
@@ -262,7 +262,7 @@ namespace PSharpBatchTestCommon
                         string taskId = taskIDPrefix + "Test" + TestEntities.IndexOf(tEntity) + cEntity.CommandName + i;
                         string taskCommandLine = command;
                         CloudTask task = new CloudTask(taskId, taskCommandLine);
-                        task.ResourceFiles = inputFiles;
+                        task.ResourceFiles = inputFilesDict[tEntity];
                         tasks.Add(task);
                     }
                 }

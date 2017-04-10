@@ -13,6 +13,7 @@ namespace PSharpBatchTestCommon
         public static string StorageConnectionStringFormat = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}";
         public static string NodeContainerNameFormat = "application{0}"; //{0}:PoolID.
         public static string InputContainerNameFormat = "input{0}{1}"; //{0}:PoolID. {1}:JobID
+        public static string InputContainerNameFormatForTestEntity = "input{0}{1}path{2}"; //{0}:PoolID. {1}:JobID {2}:Path index in the Hash
         public static string OutputContainerNameFormat = "output{0}{1}"; //{0}:PoolID. {1}:JobID
         public static string JobManagerContainerNameFormat = "jobmanager{0}{1}"; //{0}:PoolID. {1}:JobID
         //public static int BlobContainerSasExpiryHours = 10;
