@@ -194,29 +194,6 @@ namespace PSharpBatchTestCommon
         }
 
         /// <summary>
-        /// Splits tasks as w.r.t. iterations.
-        /// </summary>
-        /// <param name="jobId"></param>
-        /// <param name="taskIDPrefix"></param>
-        /// <param name="inputFiles"></param>
-        /// <param name="testFileName"></param>
-        /// <param name="iterations"></param>
-        /// <param name="maxIterationsPerTask"></param>
-        /// <returns></returns>
-        public async Task<List<CloudTask>> AddTaskWithIterations(string jobId, string taskIDPrefix, List<ResourceFile> inputFiles, string testFileName, int NumberOfTasks, int IterationsPerTask, string commandFlags)
-        {
-            //Creating tasks with iterations
-            List<string> taskCommands = new List<string>();
-            for (int i = 0; i < NumberOfTasks; i++)
-            {
-                var command = string.Format(Constants.PSharpTaskCommandFormatWithFlags, testFileName, IterationsPerTask, commandFlags);
-                taskCommands.Add(command);
-            }
-
-            return await AddTasksAsync(jobId, taskIDPrefix, inputFiles, taskCommands);
-        }
-
-        /// <summary>
         /// Adds tasks from Test entities containing multiple test commands
         /// </summary>
         /// <param name="jobId"></param>

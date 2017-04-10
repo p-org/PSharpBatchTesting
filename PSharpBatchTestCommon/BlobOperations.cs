@@ -29,7 +29,6 @@ namespace PSharpBatchTestCommon
         List<ResourceFile> inputFiles;
         Dictionary<PSharpTestEntities, List<ResourceFile>> inputFilesDict;
         string nodeContainerName;
-        string inputContainerName;
         string outputContainerName;
         string jobManagerContainerName;
         List<string> inputContainers;
@@ -126,28 +125,17 @@ namespace PSharpBatchTestCommon
             catch (Exception exp) { return; }
         }
 
+
+        
         /// <summary>
-        /// Uploads input file (the files to be tested) and ites dependencies
+        /// Upload files for all the Tests to be perfomed
         /// </summary>
-        /// <param name="inputFilePath"></param>
+        /// <param name="TestEntities">List of Tests mentioned in config file</param>
         /// <param name="poolId"></param>
         /// <param name="jobId"></param>
         /// <returns></returns>
-        public async Task<List<ResourceFile>> UploadInputFiles(string inputFilePath, string poolId, string jobId)
-        {
-            inputFilePath = Path.GetFullPath(inputFilePath);
-            inputContainerName = string.Format(Constants.InputContainerNameFormat, poolId.ToLower(), jobId.ToLower());
-            await CreateContainerIfNotExistAsync(inputContainerName);
-            //inputFiles = await UploadFilesAndFoldersToContainerAsync(inputContainerName, inputFilePaths);
-            inputFiles = await UploadDllsAndDependenciesAsync(inputContainerName, inputFilePath);
-            return inputFiles;
-        }
-
         public async Task<Dictionary<PSharpTestEntities, List<ResourceFile>>> UploadInputFilesFromTestEntities(List<PSharpTestEntities> TestEntities, string poolId, string jobId)
         {
-
-            //inputContainerName = string.Format(Constants.InputContainerNameFormat, poolId.ToLower(), jobId.ToLower());
-            //await CreateContainerIfNotExistAsync(inputContainerName);
             inputFiles = new List<ResourceFile>();
             inputFilesDict = new Dictionary<PSharpTestEntities, List<ResourceFile>>();
             inputContainers = new List<string>();
@@ -179,7 +167,6 @@ namespace PSharpBatchTestCommon
         {
             try
             {
-                //await DeleteContainerAsync(inputContainerName);
                 foreach(var container in inputContainers)
                 {
                     await DeleteContainerAsync(container);
