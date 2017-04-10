@@ -1,3 +1,5 @@
+[![NuGet](https://img.shields.io/nuget/v/Microsoft.PSharp.BatchTest.svg)](https://www.nuget.org/packages/Microsoft.PSharp.BatchTest/)
+
 Batch Testing for P#
 ====================
 This project extends the [P#](https://github.com/p-org/PSharp) asynchronous programming framework with cloud testing capabilities. It uses the [Azure Batch Service](https://azure.microsoft.com/en-in/services/batch/) APIs to run multiple parallel P# tests on Azure and fetch the results.
