@@ -20,7 +20,7 @@ namespace PSharpBatchTestCommon
         public string TaskDefaultId;
 
         //Storage Constants
-        public int BlobContainerSasExpiryHours;
+        public int BlobContainerExpiryHours;
 
         //Node Details
         public int NumberOfNodesInPool;
@@ -137,7 +137,7 @@ namespace PSharpBatchTestCommon
                 return false;
             }
             
-            if(BlobContainerSasExpiryHours<1 || this.NumberOfNodesInPool < 2 || this.TaskWaitHours<1)
+            if(BlobContainerExpiryHours<1 || this.NumberOfNodesInPool < 2 || this.TaskWaitHours<1)
             {
                 return false;
             }
