@@ -31,7 +31,34 @@ namespace PSharpBatchTestCommon
         public const string PSharpTaskCommandFormatWithFlags = "cmd /c %AZ_BATCH_NODE_SHARED_DIR%\\PSharpTester.exe /test:.\\{0} /i:{1} {2} 1>out.txt 2>&1"; 
         //{0}: Test application, {1}: number of iterations, {2}: Flags, {3}: Scheduler (and testing-process-id)
         public const string PSharpTaskCommandFormatWithSchFlags = "cmd /c %AZ_BATCH_NODE_SHARED_DIR%\\PSharpTester.exe /test:.\\{0} /i:{1} {2} {3} 1>out.txt 2>&1";
-        
+
+
+        //Exception Messages
+        public const string ExceptionPoolIdMessage = "Incorrect value for Pool Id.";
+        public const string ExceptionJobIdMessage = "Incorrect value for Job Id.";
+        public const string ExceptionTaskIdMessage = "Incorrect value for Task Id.";
+        public const string ExceptionBlobExpiryMessage = "Incorrect value for Blob expiry.";
+        public const string ExceptionNumNodesMessage = "Incorrect value for Number of nodes. Number of nodes should be greater than 2.";
+        public const string ExceptionNodeOsFamilyMessage = "Incorrect value for Node OsFamily.";
+        public const string ExceptionNodeVirtualMachineSizeMessage = "Incorrect value for Node Virtual machine size.";
+        public const string ExceptionPSharpBinariesPathMessage = "Incorrect value for PSharp Binaries folder path.";
+        public const string ExceptionOutputFolderPathMessage = "Incorrect value for Task Output folder path.";
+        public const string ExceptionTaskWaitHoursMessage = "Incorrect value for Task Wait hours.";
+        public const string ExceptionDeleteJobMessage = "Incorrect value for delete job after done.";
+        public const string ExceptionDeleteContainerMessage = "Incorrect value for delete container after done.";
+        public const string ExceptionApplicationPathMessage = "Incorrect value for application path in test case {0}.";
+        public const string ExceptionParallelTaskMessage = "Incorrect value for Number of parallel task in command {0} of test case {1}. The value should be atleast 1.";
+        public const string ExceptionIterationsMessage = "Incorrect value for number of iterations in command {0} of test case {1}. The value should be atlease 1.";
+        public const string ExceptionCommandFlagsMessage = "Incorrect value for Command flags in command {0} of test case {1}.";
+        public const string ExceptionCommandNameMessage = "Incorrect value for Command Name in command {0} of test case {1}.";
+        public const string ExceptionSchedulingStatergyMessage = "Incorrect value for Scheduling Stratergy in command {0} of test case {1}.";
+        public const string ExceptionNoTestEntityMessage = "No test cases provided in the config file.";
+        public const string ExceptionTestEntityNullMessage = "One of the Test case is empty or incorrect. Please check the config file.";
+        public const string ExceptionNoCommandEntityMessage = "No Command provided for the test case {0} in the config file.";
+        public const string ExceptionCommandEntityNullMessage = "One of the commands in a test case {0} is empty or incorrect. Please check the config file.";
+
+
+
         //Util Methods
         public static string GetTimeStamp()
         {

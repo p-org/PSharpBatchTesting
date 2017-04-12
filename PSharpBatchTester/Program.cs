@@ -69,6 +69,10 @@ namespace PSharpBatchTester
                 //We call the async main so we can await on many async calls
                 MainAsync().Wait();
             }
+            catch(PSharpConfigValidateException psharpConfigException)
+            {
+                Console.WriteLine("Error parsing config values : "+ psharpConfigException.Message);
+            }
             catch (AggregateException ae)
             {
                 #region ExceptionLog

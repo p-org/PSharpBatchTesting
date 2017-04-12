@@ -69,6 +69,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PSharpBatchAuthConfig.cs" />
     <Compile Include="PSharpBatchConfig.cs" />
+    <Compile Include="PSharpConfigValidateException.cs" />
     <Compile Include="PSharpOperations.cs" />
   </ItemGroup>
   <ItemGroup>

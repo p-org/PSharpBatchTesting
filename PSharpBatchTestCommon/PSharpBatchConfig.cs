@@ -42,18 +42,6 @@ namespace PSharpBatchTestCommon
         //Delete containers
         public bool DeleteContainerAfterDone;
 
-        //Number of Tasks
-        [XmlIgnore]
-        public int NumberOfTasks;
-
-        //Iterations per Task
-        [XmlIgnore]
-        public int IterationsPerTask;
-
-        //Task Application Path
-        //[XmlIgnore]
-        //public string TestApplicationPath;
-
         [XmlArray("Tests")]
         [XmlArrayItem("Test")]
         public List<PSharpTestEntities> TestEntities;
@@ -112,6 +100,7 @@ namespace PSharpBatchTestCommon
                 config = XMLDeserialize(fileStream);
                 fileStream.Close();
             }
+            config.Validate();
             return config;
         }
 
@@ -127,27 +116,106 @@ namespace PSharpBatchTestCommon
             return xmlSerializer.Deserialize(readStream) as PSharpBatchConfig;
         }
 
-        public bool Validate()
+        public void Validate()
         {
             //Validate all the properties
 
-            if(string.IsNullOrEmpty(this.PoolId) || string.IsNullOrEmpty(this.JobDefaultId) 
-                || string.IsNullOrEmpty(this.TaskDefaultId))
+            if (string.IsNullOrEmpty(PoolId))
             {
-                return false;
+                throw new PSharpConfigValidateException(Constants.ExceptionPoolIdMessage);
             }
-            
-            if(BlobContainerExpiryHours<1 || this.NumberOfNodesInPool < 2 || this.TaskWaitHours<1)
+            if (string.IsNullOrEmpty(JobDefaultId))
             {
-                return false;
+                throw new PSharpConfigValidateException(Constants.ExceptionJobIdMessage);
             }
-            
-            if(string.IsNullOrEmpty(this.PSharpBinariesFolderPath) || string.IsNullOrEmpty(this.OutputFolderPath))
+            if (string.IsNullOrEmpty(TaskDefaultId))
             {
-                return false;
+                throw new PSharpConfigValidateException(Constants.ExceptionTaskIdMessage);
             }
-            
-            return true;
+            if (!(BlobContainerExpiryHours>0) && BlobContainerExpiryHours != -1)
+            {
+                throw new PSharpConfigValidateException(Constants.ExceptionBlobExpiryMessage);
+            }
+            if (NumberOfNodesInPool<2)
+            {
+                throw new PSharpConfigValidateException(Constants.ExceptionNumNodesMessage);
+            }
+
+            int tempOsVal = 0;
+            if (string.IsNullOrEmpty(NodeOsFamily) || !int.TryParse(NodeOsFamily, out tempOsVal))
+            {
+                throw new PSharpConfigValidateException(Constants.ExceptionNodeOsFamilyMessage);
+            }
+
+            if (string.IsNullOrEmpty(NodeVirtualMachineSize))
+            {
+                throw new PSharpConfigValidateException(Constants.ExceptionNodeVirtualMachineSizeMessage);
+            }
+
+            if (string.IsNullOrEmpty(PSharpBinariesFolderPath) || !Directory.Exists(PSharpBinariesFolderPath))
+            {
+                throw new PSharpConfigValidateException(Constants.ExceptionPSharpBinariesPathMessage);
+            }
+
+            if (string.IsNullOrEmpty(OutputFolderPath))
+            {
+                throw new PSharpConfigValidateException(Constants.ExceptionOutputFolderPathMessage);
+            }
+
+            if (TaskWaitHours < 1)
+            {
+                throw new PSharpConfigValidateException(Constants.ExceptionTaskWaitHoursMessage);
+            }
+
+            if(null == TestEntities || TestEntities.Count == 0)
+            {
+                throw new PSharpConfigValidateException(Constants.ExceptionNoTestEntityMessage);
+            }
+
+            foreach(var tEntity in TestEntities)
+            {
+                if(null == tEntity)
+                {
+                    throw new PSharpConfigValidateException(Constants.ExceptionTestEntityNullMessage);
+                }
+                if (string.IsNullOrEmpty(tEntity.ApplicationPath) || !File.Exists(tEntity.ApplicationPath))
+                {
+                    throw new PSharpConfigValidateException(string.Format(Constants.ExceptionApplicationPathMessage, TestEntities.IndexOf(tEntity)));
+                }
+
+                if(null == tEntity.CommandEntities || tEntity.CommandEntities.Count() == 0)
+                {
+                    throw new PSharpConfigValidateException(string.Format(Constants.ExceptionNoCommandEntityMessage, TestEntities.IndexOf(tEntity)));
+                }
+
+                for(int i = 0; i < tEntity.CommandEntities.Count(); i++)
+                {
+                    var cEntity = tEntity.CommandEntities[i];
+
+                    if(null == cEntity)
+                    {
+                        throw new PSharpConfigValidateException(Constants.ExceptionCommandEntityNullMessage);
+                    }
+
+                    if (cEntity.NumberOfParallelTasks < 1)
+                    {
+                        throw new PSharpConfigValidateException(string.Format(Constants.ExceptionParallelTaskMessage, i, TestEntities.IndexOf(tEntity)));
+                    }
+                    if (cEntity.IterationsPerTask < 1)
+                    {
+                        throw new PSharpConfigValidateException(string.Format(Constants.ExceptionIterationsMessage, i, TestEntities.IndexOf(tEntity)));
+                    }
+                    if (string.IsNullOrEmpty(cEntity.CommandName))
+                    {
+                        throw new PSharpConfigValidateException(string.Format(Constants.ExceptionCommandNameMessage, i, TestEntities.IndexOf(tEntity)));
+                    }
+                    //Todo : check list of supported schedulers
+                    //if (!string.IsNullOrEmpty(cEntity.SchedulingStratergy) && !cEntity.SchedulingStratergy.StartsWith("/sch:"))
+                    //{
+                    //    throw new PSharpConfigValidateException(string.Format(Constants.ExceptionSchedulingStatergyMessage, i, TestEntities.IndexOf(tEntity)));
+                    //}
+                }
+            }
         }
     }
 }
