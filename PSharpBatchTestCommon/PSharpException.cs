@@ -6,7 +6,16 @@ using System.Threading.Tasks;
 
 namespace PSharpBatchTestCommon
 {
-    public class PSharpConfigValidateException : Exception
+
+    public class PSharpException : Exception
+    {
+        public PSharpException(string exceptionMessage) : base(exceptionMessage)
+        {
+
+        }
+    }
+
+    public class PSharpConfigValidateException : PSharpException
     {
         public PSharpConfigValidateException(string exceptionMessage) : base(exceptionMessage)
         {

@@ -35,6 +35,7 @@ namespace PSharpBatchTestCommon
                 config = XMLDeserialize(fileStream);
                 fileStream.Close();
             }
+            config.Validate();
             return config;
         }
 
@@ -50,15 +51,28 @@ namespace PSharpBatchTestCommon
             return xmlSerializer.Deserialize(readStream) as PSharpBatchAuthConfig;
         }
 
-        public bool Validate()
+        public void Validate()
         {
-            if (string.IsNullOrEmpty(this.BatchAccountName) || string.IsNullOrEmpty(this.BatchAccountKey)
-                || string.IsNullOrEmpty(this.BatchAccountUrl) || string.IsNullOrEmpty(this.StorageAccountName)
-                || string.IsNullOrEmpty(this.StorageAccountKey))
+            if (string.IsNullOrEmpty(BatchAccountName))
             {
-                return false;
+                throw new PSharpConfigValidateException(Constants.ExceptionBatchAccountNameMessage);
             }
-            return true;
+            if (string.IsNullOrEmpty(BatchAccountKey))
+            {
+                throw new PSharpConfigValidateException(Constants.ExceptionBatchAccountKeyMessage);
+            }
+            if (string.IsNullOrEmpty(BatchAccountUrl))
+            {
+                throw new PSharpConfigValidateException(Constants.ExceptionBatchAccountUrlMessage);
+            }
+            if (string.IsNullOrEmpty(StorageAccountName))
+            {
+                throw new PSharpConfigValidateException(Constants.ExceptionStorageAccountNameMessage);
+            }
+            if (string.IsNullOrEmpty(StorageAccountKey))
+            {
+                throw new PSharpConfigValidateException(Constants.ExceptionStorageAccountKeyMessage);
+            }
         }
     }
 }

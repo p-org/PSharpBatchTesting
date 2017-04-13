@@ -56,7 +56,11 @@ namespace PSharpBatchTestCommon
         public const string ExceptionTestEntityNullMessage = "One of the Test case is empty or incorrect. Please check the config file.";
         public const string ExceptionNoCommandEntityMessage = "No Command provided for the test case {0} in the config file.";
         public const string ExceptionCommandEntityNullMessage = "One of the commands in a test case {0} is empty or incorrect. Please check the config file.";
-
+        public const string ExceptionBatchAccountNameMessage = "Incorrect value for Batch Account Name in Auth Config file.";
+        public const string ExceptionBatchAccountUrlMessage = "Incorrect value for Batch Account URL in Auth Config file.";
+        public const string ExceptionBatchAccountKeyMessage = "Incorrect value for Batch Account Key in Auth Config file.";
+        public const string ExceptionStorageAccountNameMessage = "Incorrect value for Storage Account Name in Auth Config file.";
+        public const string ExceptionStorageAccountKeyMessage = "Incorrect value for Storage Account Key in Auth Config file.";
 
 
         //Util Methods
