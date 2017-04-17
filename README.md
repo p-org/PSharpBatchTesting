@@ -1,4 +1,4 @@
-[![NuGet](https://img.shields.io/nuget/v/Microsoft.PSharp.BatchTest.svg)](https://www.nuget.org/packages/Microsoft.PSharp.BatchTest/)
+[![NuGet](https://img.shields.io/nuget/v/Microsoft.PSharp.BatchTester.svg)](https://www.nuget.org/packages/Microsoft.PSharp.BatchTester/)
 
 Batch Testing for P#
 ====================
