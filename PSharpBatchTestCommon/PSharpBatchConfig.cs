@@ -152,7 +152,7 @@ namespace PSharpBatchTestCommon
                 throw new PSharpConfigValidateException(Constants.ExceptionNodeVirtualMachineSizeMessage);
             }
 
-            if (string.IsNullOrEmpty(PSharpBinariesFolderPath) || !Directory.Exists(PSharpBinariesFolderPath))
+            if (string.IsNullOrEmpty(PSharpBinariesFolderPath) || !Directory.Exists(Path.GetFullPath(Environment.ExpandEnvironmentVariables(PSharpBinariesFolderPath))))
             {
                 throw new PSharpConfigValidateException(Constants.ExceptionPSharpBinariesPathMessage);
             }
@@ -178,7 +178,7 @@ namespace PSharpBatchTestCommon
                 {
                     throw new PSharpConfigValidateException(Constants.ExceptionTestEntityNullMessage);
                 }
-                if (string.IsNullOrEmpty(tEntity.ApplicationPath) || !File.Exists(tEntity.ApplicationPath))
+                if (string.IsNullOrEmpty(tEntity.ApplicationPath) || !File.Exists(Path.GetFullPath(Environment.ExpandEnvironmentVariables(tEntity.ApplicationPath))))
                 {
                     throw new PSharpConfigValidateException(string.Format(Constants.ExceptionApplicationPathMessage, TestEntities.IndexOf(tEntity)));
                 }

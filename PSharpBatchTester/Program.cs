@@ -43,11 +43,11 @@ namespace PSharpBatchTester
             try
             {
                 //Get args
-                string configFilePath = Path.GetFullPath(args[0]);
+                string configFilePath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(args[0]));
                 config = PSharpBatchConfig.LoadFromXML(configFilePath);
                 //PSharpOperations.ParseConfig(config);
 
-                string authConfigFilePath = Path.GetFullPath(args[1]);
+                string authConfigFilePath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(args[1]));
                 authConfig = PSharpBatchAuthConfig.LoadFromXML(authConfigFilePath);
 
                 //If it contains 3 args, then get the location of the test application

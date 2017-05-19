@@ -78,7 +78,7 @@ namespace PSharpBatchTestCommon
 
         public async Task DownloadOutputFiles(string directoryPath)
         {
-            directoryPath = Path.GetFullPath(directoryPath);
+            directoryPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(directoryPath));
             if (!Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);
@@ -141,7 +141,7 @@ namespace PSharpBatchTestCommon
             inputContainers = new List<string>();
             
             //Creating application hashset
-            HashSet<string> applicationPaths = new HashSet<string>(TestEntities.Select(ce => Path.GetFullPath(ce.ApplicationPath)));
+            HashSet<string> applicationPaths = new HashSet<string>(TestEntities.Select(ce => Path.GetFullPath(Environment.ExpandEnvironmentVariables(ce.ApplicationPath))));
             int i = 0;
             foreach(var filePath in applicationPaths)
             {
@@ -150,8 +150,17 @@ namespace PSharpBatchTestCommon
                 await CreateContainerIfNotExistAsync(containerName);
                 inputContainers.Add(containerName);
                 //inputFiles.AddRange(await UploadDllsAndDependenciesAsync(inputContainerName, filePath));
-                var resFiles = await UploadDllsAndDependenciesAsync(containerName, filePath);
-                foreach(var tEntities in TestEntities.Where(t=>t.ApplicationPath.Equals(filePath)))
+                List<ResourceFile> resFiles;
+                try
+                {
+                    resFiles = await UploadDllsAndDependenciesAsync(containerName, filePath);
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    resFiles = await UploadFilesAndFoldersToContainerAsync(containerName, new List<string> { Path.GetDirectoryName(filePath) });
+                }
+                foreach(var tEntities in TestEntities.Where(t=>filePath.Equals(Path.GetFullPath(Environment.ExpandEnvironmentVariables(t.ApplicationPath)))))
                 {
                     inputFilesDict.Add(tEntities, resFiles);
                 }
@@ -184,7 +193,7 @@ namespace PSharpBatchTestCommon
         /// <returns></returns>
         public async Task<List<ResourceFile>> UploadJobManagerFiles(string jobManagerFilePath, string poolId, string jobId)
         {
-            jobManagerFilePath = Path.GetFullPath(jobManagerFilePath);
+            jobManagerFilePath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(jobManagerFilePath));
             jobManagerContainerName = string.Format(Constants.JobManagerContainerNameFormat, poolId.ToLower(), jobId.ToLower());
             await CreateContainerIfNotExistAsync(jobManagerContainerName);
             //jobManagerFiles = await UploadFilesAndFoldersToContainerAsync(jobManagerContainerName, jobManagerFilePaths);
