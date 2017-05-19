@@ -326,14 +326,14 @@ namespace PSharpBatchTestCommon
                 return false;
             }
 
-            try
-            {
-                await batchClient.JobOperations.TerminateJobAsync(jobId, successMessage);
-            }
-            catch(Exception exp)
-            {
-                Console.WriteLine(exp.StackTrace); ;
-            }
+            //try
+            //{
+            //    await batchClient.JobOperations.TerminateJobAsync(jobId, successMessage);
+            //}
+            //catch(Exception exp)
+            //{
+            //    Console.WriteLine(exp.StackTrace);
+            //}
 
             // All tasks have reached the "Completed" state, however, this does not guarantee all tasks completed successfully.
             // Here we further check each task's ExecutionInfo property to ensure that it did not encounter a scheduling error
