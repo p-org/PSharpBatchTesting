@@ -134,14 +134,15 @@ namespace PSharpBatchJobManager
                             if (task.State == TaskState.Completed)
                             {
                                 Log("[" + task.Id + "] task completed");
-                                if (task.ExecutionInformation.SchedulingError != null)
-                                {
-                                    Log("[" + task.Id + "] task scheduling error : Reactivating");
-                                    //Scheduling error : Restart task
-                                    //await task.ReactivateAsync();
-                                    //flag = true;
-                                }
-                                else if (task.ExecutionInformation.ExitCode != 0)
+                                //if (task.ExecutionInformation.SchedulingError != null)
+                                //{
+                                //    Log("[" + task.Id + "] task scheduling error : Reactivating");
+                                //    //Scheduling error : Restart task
+                                //    //await task.ReactivateAsync();
+                                //    //flag = true;
+                                //}
+                                //else 
+                                if (task.ExecutionInformation.ExitCode != 0)
                                 {
                                     Log("[" + task.Id + "] task error, terminating all tasks");
                                     //Task retured with error : Stop all other task

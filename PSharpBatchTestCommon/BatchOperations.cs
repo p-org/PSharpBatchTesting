@@ -96,7 +96,7 @@ namespace PSharpBatchTestCommon
                 // Batch service. This CloudPool instance is therefore considered "unbound," and we can modify its properties.
                 pool = batchClient.PoolOperations.CreatePool(
                     poolId: poolId,
-                    targetDedicated: numberOfNodes,                                                     // Default : 1
+                    targetDedicatedComputeNodes: numberOfNodes,                                                     // Default : 1
                     virtualMachineSize: VirtualMachineSize,                                              // Defualt : small -> single-core, 1.75 GB memory, 225 GB disk
                     cloudServiceConfiguration: new CloudServiceConfiguration(osFamily: OSFamily));      // Default : 5 -> Windows Server 2012 R2 with .Net Framework 4.6.2 support
 
@@ -348,16 +348,17 @@ namespace PSharpBatchTestCommon
                 // Populate the task's properties with the latest info from the Batch service
                 await task.RefreshAsync(detail);
 
-                if (task.ExecutionInformation.SchedulingError != null)
-                {
-                    // A scheduling error indicates a problem starting the task on the node. It is important to note that
-                    // the task's state can be "Completed," yet still have encountered a scheduling error.
+                //if (task.ExecutionInformation.SchedulingError != null)
+                //{
+                //    // A scheduling error indicates a problem starting the task on the node. It is important to note that
+                //    // the task's state can be "Completed," yet still have encountered a scheduling error.
 
-                    allTasksSuccessful = false;
+                //    allTasksSuccessful = false;
 
-                    Console.WriteLine("WARNING: Task [{0}] encountered a scheduling error: {1}", task.Id, task.ExecutionInformation.SchedulingError.Message);
-                }
-                else if (task.ExecutionInformation.ExitCode != 0)
+                //    Console.WriteLine("WARNING: Task [{0}] encountered a scheduling error: {1}", task.Id, task.ExecutionInformation.SchedulingError.Message);
+                //}
+                //else 
+                if (task.ExecutionInformation.ExitCode != 0)
                 {
                     // A non-zero exit code may indicate that the application executed by the task encountered an error
                     // during execution. As not every application returns non-zero on failure by default (e.g. robocopy),
