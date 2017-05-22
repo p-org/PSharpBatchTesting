@@ -33,6 +33,11 @@ namespace PSharpBatchTestCommon
         public const string PSharpTaskCommandFormatWithSchFlags = "cmd /c %AZ_BATCH_NODE_SHARED_DIR%\\PSharpTester.exe /test:.\\{0} /i:{1} {2} {3} 1>out.txt 2>&1";
 
 
+        //Coverage Report command template
+        public const string PSharpCoverageReportMergerCommandTemplate = "/c cd {0} & {1} {2} /output:Merged_Report";    // {0} directory in which we have the .sci files, {1} : Location of the CoverageReportMerger exe
+                                                                                                                        // {2} paths to all the Sci files space seperated.
+
+
         //Exception Messages
         public const string ExceptionPoolIdMessage = "Incorrect value for Pool Id.";
         public const string ExceptionJobIdMessage = "Incorrect value for Job Id.";

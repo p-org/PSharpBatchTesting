@@ -195,10 +195,10 @@ namespace PSharpBatchJobManager
                             foreach (var file in files)
                             {
                                 if (file.IsDirectory ?? false) { continue; }
-                                if (file.Name.ToLower().Contains("wd") && !(file.Name.ToLower().Contains(".exe") || file.Name.ToLower().Contains(".dll")))
+                                if (file.Path.ToLower().Contains("wd") && CheckIfSupportedFileType(file.Path))
                                 {
                                     //upload this file to container
-                                    var fileName = task.Id + "_" + file.Name.Split('\\').Last();
+                                    var fileName = task.Id + "_" + file.Path.Split('\\').Last();
                                     var fileFullPath = Path.Combine(Directory.GetCurrentDirectory(), fileName);
                                     Log(string.Format("Uploading output file for [{0}]. File Path: [{1}].", task.Id, fileFullPath));
                                     using (FileStream fileStream = new FileStream(fileFullPath, FileMode.Create))
@@ -226,6 +226,17 @@ namespace PSharpBatchJobManager
             {
                 throw e;
             }
+        }
+
+        private static bool CheckIfSupportedFileType(string fileName)
+        {
+            if(fileName.EndsWith(".txt") || fileName.EndsWith(".pstrace") || 
+                fileName.EndsWith(".schedule") || fileName.EndsWith("dgml") ||
+                fileName.EndsWith(".sci"))
+            {
+                return true;
+            }
+            return false;
         }
 
         private static void timerCallBack(object sender)

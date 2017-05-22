@@ -318,7 +318,7 @@ namespace PSharpBatchTestCommon
                 if (CheckIfDirectory(path))
                 {
                     //currently skipping directories
-                    allFilePaths.AddRange(GetAllFilesFromFolder(path));
+                    allFilePaths.AddRange(GetAllFilesFromFolder(path).Where(f => !f.EndsWith(".pdb")));
                 }
                 else
                 {
@@ -438,11 +438,32 @@ namespace PSharpBatchTestCommon
                 CloudBlob blob = (CloudBlob)item;
                 Console.WriteLine("Dowloading file: " + blob.Name);
                 // Save blob contents to a file in the specified folder
-                string localOutputFile = Path.Combine(directoryPath, blob.Name);
+                string localOutputFile = GetPathFromBlobName(blob.Name, directoryPath);
+                var localDirectoryPath = Path.GetDirectoryName(localOutputFile);
+                if (!Directory.Exists(localDirectoryPath))
+                {
+                    Directory.CreateDirectory(localDirectoryPath);
+                }
                 await blob.DownloadToFileAsync(localOutputFile, FileMode.Create);
             }
 
             Console.WriteLine("All files downloaded to {0}", directoryPath);
+        }
+
+        private static string GetPathFromBlobName(string BlobName, string directoryPath)
+        {
+            string defaultPath = Path.Combine(directoryPath, BlobName);
+            try
+            {
+                var splitWords = BlobName.Split('_');
+                var testIndex = splitWords[1];
+                var commandName = splitWords[2];
+                return Path.Combine(directoryPath, testIndex, commandName, BlobName);
+            }
+            catch(Exception e)
+            {
+                return defaultPath;
+            }
         }
 
         private async Task DeleteContainerAsync(string containerName)

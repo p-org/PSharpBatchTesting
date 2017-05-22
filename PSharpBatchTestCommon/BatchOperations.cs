@@ -236,7 +236,7 @@ namespace PSharpBatchTestCommon
                             command = string.Format(Constants.PSharpTaskCommandFormatWithSchFlags, Path.GetFileName(tEntity.ApplicationPath), cEntity.IterationsPerTask, cEntity.CommandFlags, schFlag);
                         }
                         taskCommands.Add(command);
-                        string taskId = taskIDPrefix + "Test" + TestEntities.IndexOf(tEntity) + cEntity.CommandName + i;
+                        string taskId = taskIDPrefix + "_" + tEntity.testName + "_" + cEntity.CommandName + "_" + i;
                         string taskCommandLine = command;
                         CloudTask task = new CloudTask(taskId, taskCommandLine);
                         task.ResourceFiles = inputFilesDict[tEntity];
@@ -246,7 +246,7 @@ namespace PSharpBatchTestCommon
             }
 
             Console.WriteLine("Adding {0} tasks to job [{1}]...", tasks.Count, jobId);
-            await batchClient.JobOperations.AddTaskAsync(jobId, tasks);
+            await batchClient.JobOperations.AddTaskAsync(jobId, tasks, timeout: TimeSpan.FromMinutes(30));
 
             return tasks;
         }
@@ -326,6 +326,7 @@ namespace PSharpBatchTestCommon
                 return false;
             }
 
+            #region Terminate taks Not required
             //try
             //{
             //    await batchClient.JobOperations.TerminateJobAsync(jobId, successMessage);
@@ -333,7 +334,8 @@ namespace PSharpBatchTestCommon
             //catch(Exception exp)
             //{
             //    Console.WriteLine(exp.StackTrace);
-            //}
+            //} 
+            #endregion
 
             // All tasks have reached the "Completed" state, however, this does not guarantee all tasks completed successfully.
             // Here we further check each task's ExecutionInfo property to ensure that it did not encounter a scheduling error
@@ -387,6 +389,7 @@ namespace PSharpBatchTestCommon
         {
             try
             {
+                Console.WriteLine("Deleting Job [{0}] from Azure", JobId);
                 await batchClient.JobOperations.DeleteJobAsync(JobId);
             }
             catch(Exception e)

@@ -48,6 +48,9 @@ namespace PSharpBatchTestCommon
 
         public class PSharpTestEntities
         {
+            [XmlAttribute("Name")]
+            public string testName;
+
             public string ApplicationPath;
 
             [XmlElement("Command")]
@@ -56,12 +59,17 @@ namespace PSharpBatchTestCommon
 
         public class PSharpCommandEntities
         {
-
+            [XmlIgnore]
             public int NumberOfParallelTasks;
+            [XmlIgnore]
             public int IterationsPerTask;
-            public string CommandFlags;
-            public string CommandName;
+            [XmlIgnore]
             public string SchedulingStratergy;
+            [XmlAttribute("Flags")]
+            public string CommandFlags;
+            [XmlAttribute("Name")]
+            public string CommandName;
+            
 
             public PSharpCommandEntities()
             {
@@ -100,7 +108,7 @@ namespace PSharpBatchTestCommon
                 config = XMLDeserialize(fileStream);
                 fileStream.Close();
             }
-            config.Validate();
+            config.ValidateAndParse();
             return config;
         }
 
@@ -116,7 +124,7 @@ namespace PSharpBatchTestCommon
             return xmlSerializer.Deserialize(readStream) as PSharpBatchConfig;
         }
 
-        public void Validate()
+        public void ValidateAndParse()
         {
             //Validate all the properties
 
@@ -191,6 +199,8 @@ namespace PSharpBatchTestCommon
                 for(int i = 0; i < tEntity.CommandEntities.Count(); i++)
                 {
                     var cEntity = tEntity.CommandEntities[i];
+
+                    PSharpOperations.ParseCommandEntities(ref cEntity);
 
                     if(null == cEntity)
                     {

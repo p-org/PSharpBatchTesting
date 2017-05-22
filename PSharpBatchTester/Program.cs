@@ -171,7 +171,19 @@ namespace PSharpBatchTester
             //Flush Log
             Logger.FlushLogs();
 
-            await blobOperations.DownloadOutputFiles(config.OutputFolderPath);
+            var outputFolderPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(config.OutputFolderPath));
+
+            await blobOperations.DownloadOutputFiles(outputFolderPath);
+
+            try
+            {
+                PSharpOperations.MergeOutputCoverageReport(outputFolderPath, Path.GetFullPath(Environment.ExpandEnvironmentVariables(config.PSharpBinariesFolderPath)));
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
 
             //All task completed
             Console.WriteLine();
