@@ -42,6 +42,9 @@ namespace PSharpBatchTestCommon
         //Delete containers
         public bool DeleteContainerAfterDone;
 
+        //Run PSharpTester locally
+        public bool RunLocally;
+
         [XmlArray("Tests")]
         [XmlArrayItem("Test")]
         public List<PSharpTestEntities> TestEntities;
@@ -59,15 +62,10 @@ namespace PSharpBatchTestCommon
 
         public class PSharpCommandEntities
         {
-            [XmlIgnore]
             public int NumberOfParallelTasks;
-            [XmlIgnore]
             public int IterationsPerTask;
-            [XmlIgnore]
             public string SchedulingStratergy;
-            [XmlAttribute("Flags")]
             public string CommandFlags;
-            [XmlAttribute("Name")]
             public string CommandName;
             
 
@@ -160,7 +158,7 @@ namespace PSharpBatchTestCommon
                 throw new PSharpConfigValidateException(Constants.ExceptionNodeVirtualMachineSizeMessage);
             }
 
-            if (string.IsNullOrEmpty(PSharpBinariesFolderPath) || !Directory.Exists(Path.GetFullPath(Environment.ExpandEnvironmentVariables(PSharpBinariesFolderPath))))
+            if (string.IsNullOrEmpty(PSharpBinariesFolderPath) || !Directory.Exists(PSharpBinariesFolderPath))
             {
                 throw new PSharpConfigValidateException(Constants.ExceptionPSharpBinariesPathMessage);
             }
@@ -186,7 +184,7 @@ namespace PSharpBatchTestCommon
                 {
                     throw new PSharpConfigValidateException(Constants.ExceptionTestEntityNullMessage);
                 }
-                if (string.IsNullOrEmpty(tEntity.ApplicationPath) || !File.Exists(Path.GetFullPath(Environment.ExpandEnvironmentVariables(tEntity.ApplicationPath))))
+                if (string.IsNullOrEmpty(tEntity.ApplicationPath) || !File.Exists(tEntity.ApplicationPath))
                 {
                     throw new PSharpConfigValidateException(string.Format(Constants.ExceptionApplicationPathMessage, TestEntities.IndexOf(tEntity)));
                 }
@@ -200,7 +198,7 @@ namespace PSharpBatchTestCommon
                 {
                     var cEntity = tEntity.CommandEntities[i];
 
-                    PSharpOperations.ParseCommandEntities(ref cEntity);
+                    //PSharpOperations.ParseCommandEntities(ref cEntity);
 
                     if(null == cEntity)
                     {

@@ -47,6 +47,12 @@ namespace PSharpBatchTester
                 config = PSharpBatchConfig.LoadFromXML(configFilePath);
                 //PSharpOperations.ParseConfig(config);
 
+                if (config.RunLocally)
+                {
+                    LocalMain();
+                    return;
+                }
+
                 string authConfigFilePath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(args[1]));
                 authConfig = PSharpBatchAuthConfig.LoadFromXML(authConfigFilePath);
 
@@ -95,6 +101,53 @@ namespace PSharpBatchTester
                 Console.WriteLine();
             }
             Console.WriteLine();
+        }
+
+        private static void LocalMain()
+        {
+            List<Process> ProcessList = new List<Process>();
+            
+            foreach (var tEntity in config.TestEntities)
+            {
+                foreach (var cEntity in tEntity.CommandEntities)
+                {
+                    for (int i = 0; i < cEntity.NumberOfParallelTasks; i++)
+                    {
+                        string FlagString;
+
+                        if (string.IsNullOrEmpty(cEntity.SchedulingStratergy))
+                        {
+                            FlagString = String.Format("/test:{0} /i:{1} {2}", tEntity.ApplicationPath, cEntity.IterationsPerTask, cEntity.CommandFlags);
+                        }
+                        else
+                        {
+                            FlagString = String.Format("/test:{0} /i:{1} {2} /sch:{3}", tEntity.ApplicationPath, cEntity.IterationsPerTask, cEntity.CommandFlags, cEntity.SchedulingStratergy);
+                        }
+                        Console.WriteLine(FlagString);
+                        ProcessStartInfo startInfo = new ProcessStartInfo(
+                                config.PSharpBinariesFolderPath + "\\PSharpTester.exe", FlagString);
+                        startInfo.UseShellExecute = false;
+
+                        Process process = new Process();
+                        process.StartInfo = startInfo;
+                        process.StartInfo.RedirectStandardError = true;
+                        ProcessList.Add(process);
+                        process.Start();
+                    }
+                }
+            }
+
+            foreach (var p in ProcessList)
+            {
+                try
+                {
+                    p.WaitForExit();
+                    string sr = p.StandardError.ReadToEnd();
+                    var outputFolderPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(config.OutputFolderPath));
+                    File.WriteAllText(outputFolderPath +"\\out_" + p.Id + ".txt", sr);
+                }
+                catch (Exception ex) { }
+            }
         }
 
         private static async Task MainAsync()
@@ -203,6 +256,5 @@ namespace PSharpBatchTester
                 await blobOperations.DeleteOutputContainer();
             }
         }
-        
     }
 }
