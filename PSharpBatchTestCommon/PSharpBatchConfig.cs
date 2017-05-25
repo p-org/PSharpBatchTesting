@@ -42,6 +42,9 @@ namespace PSharpBatchTestCommon
         //Delete containers
         public bool DeleteContainerAfterDone;
 
+        //Run PSharpTester locally
+        public bool RunLocally;
+
         [XmlArray("Tests")]
         [XmlArrayItem("Test")]
         public List<PSharpTestEntities> TestEntities;
