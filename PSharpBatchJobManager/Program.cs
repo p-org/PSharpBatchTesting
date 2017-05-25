@@ -198,7 +198,7 @@ namespace PSharpBatchJobManager
                                 if (file.Path.ToLower().Contains("wd") && CheckIfSupportedFileType(file.Path))
                                 {
                                     //upload this file to container
-                                    var fileName = task.Id + "_" + file.Path.Split('\\').Last();
+                                    var fileName = task.Id + "$" + file.Path.Split('\\').Last();
                                     var fileFullPath = Path.Combine(Directory.GetCurrentDirectory(), fileName);
                                     Log(string.Format("Uploading output file for [{0}]. File Path: [{1}].", task.Id, fileFullPath));
                                     using (FileStream fileStream = new FileStream(fileFullPath, FileMode.Create))
@@ -234,6 +234,15 @@ namespace PSharpBatchJobManager
                 fileName.EndsWith(".schedule") || fileName.EndsWith("dgml") ||
                 fileName.EndsWith(".sci"))
             {
+                if (fileName.EndsWith(".txt"))
+                {
+                    //Download text files containing only the test output (psharpbatchoutput.txt) or the coverage report.
+                    if (fileName.EndsWith(".coverage.txt") || fileName.Contains("psharpbatchout.txt"))
+                    {
+                        return true;
+                    }
+                    return false;
+                }
                 return true;
             }
             return false;

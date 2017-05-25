@@ -336,7 +336,15 @@ namespace PSharpBatchTestCommon
 
             foreach (string filePath in filePaths)
             {
-                resourceFiles.Add(await UploadFileToContainerAsync(inputContainerName, filePath, IsInfinteTimeout));
+                try
+                {
+                    resourceFiles.Add(await UploadFileToContainerAsync(inputContainerName, filePath, IsInfinteTimeout));
+                }
+                catch(Exception exp)
+                {
+                    //Exception can be thrown if the file is in use, in that case we just skip the file.
+                    Console.WriteLine(exp.Message);
+                }
             }
 
             return resourceFiles;
@@ -436,7 +444,7 @@ namespace PSharpBatchTestCommon
             {
                 // Retrieve reference to the current blob
                 CloudBlob blob = (CloudBlob)item;
-                Console.WriteLine("Dowloading file: " + blob.Name);
+                Console.WriteLine("Dowloading file: [" + blob.Name + "].");
                 // Save blob contents to a file in the specified folder
                 string localOutputFile = GetPathFromBlobName(blob.Name, directoryPath);
                 var localDirectoryPath = Path.GetDirectoryName(localOutputFile);
@@ -455,10 +463,13 @@ namespace PSharpBatchTestCommon
             string defaultPath = Path.Combine(directoryPath, BlobName);
             try
             {
-                var splitWords = BlobName.Split('_');
-                var testIndex = splitWords[1];
+                var dollarSplit = BlobName.Split('$');
+                var splitWords = dollarSplit.First().Split('_');
+                var testName = splitWords[1];
                 var commandName = splitWords[2];
-                return Path.Combine(directoryPath, testIndex, commandName, BlobName);
+                var fileName = splitWords[3] + "_" + dollarSplit[1];
+                var folderName = string.IsNullOrEmpty(testName) ? commandName : testName + "_" + commandName;
+                return Path.Combine(directoryPath, folderName, fileName);
             }
             catch(Exception e)
             {

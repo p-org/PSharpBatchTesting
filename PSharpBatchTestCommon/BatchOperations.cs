@@ -236,7 +236,7 @@ namespace PSharpBatchTestCommon
                             command = string.Format(Constants.PSharpTaskCommandFormatWithSchFlags, Path.GetFileName(tEntity.ApplicationPath), cEntity.IterationsPerTask, cEntity.CommandFlags, schFlag);
                         }
                         taskCommands.Add(command);
-                        string taskId = taskIDPrefix + "_" + tEntity.testName + "_" + cEntity.CommandName + "_" + i;
+                        string taskId = taskIDPrefix + "_" + tEntity.TestName + "_" + cEntity.CommandName + "_" + i;
                         string taskCommandLine = command;
                         CloudTask task = new CloudTask(taskId, taskCommandLine);
                         task.ResourceFiles = inputFilesDict[tEntity];

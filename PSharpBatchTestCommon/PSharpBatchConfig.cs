@@ -49,7 +49,7 @@ namespace PSharpBatchTestCommon
         public class PSharpTestEntities
         {
             [XmlAttribute("Name")]
-            public string testName;
+            public string TestName;
 
             public string ApplicationPath;
 
@@ -185,6 +185,10 @@ namespace PSharpBatchTestCommon
                 if(null == tEntity)
                 {
                     throw new PSharpConfigValidateException(Constants.ExceptionTestEntityNullMessage);
+                }
+                if(null == tEntity.TestName)
+                {
+                    tEntity.TestName = string.Empty;
                 }
                 if (string.IsNullOrEmpty(tEntity.ApplicationPath) || !File.Exists(Path.GetFullPath(Environment.ExpandEnvironmentVariables(tEntity.ApplicationPath))))
                 {
