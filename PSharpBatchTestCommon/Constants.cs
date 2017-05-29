@@ -34,9 +34,15 @@ namespace PSharpBatchTestCommon
 
 
         //Coverage Report command template
-        public const string PSharpCoverageReportMergerCommandTemplate = "/c cd {0} & {1} {2} /output:Merged_Report";    // {0} directory in which we have the .sci files, {1} : Location of the CoverageReportMerger exe
-                                                                                                                        // {2} paths to all the Sci files space seperated.
+        // {0} directory in which we have the .sci files, {1} : Location of the CoverageReportMerger exe
+        // {2} paths to all the Sci files space seperated.
+        public const string PSharpCoverageReportMergerCommandTemplate = "/c cd {0} & {1} {2} /output:Merged_Report";
 
+        //Local command constants
+        //{0} : PSharpTester Paht | {1} : Test application path | {2} : Number of iterations 
+        //{3} : Number of parallel tasks | {4} : other flags | {5} : Output Directory | {6} : Scheduler
+        public const string PSharpTestLocalArgsTemplate = "/c {0} /test:{1} /i:{2} /parallel:{3} {4} /o:{5} 1>psharpbatchout.txt 2>&1";
+        public const string PSharpTestLocalArgsWithSchFlagTemplate = "/c {0} /test:{1} /i:{2} /parallel:{3} {4} /o:{5} /sch:{6} 1>psharpbatchout.txt 2>&1";
 
         //Exception Messages
         public const string ExceptionPoolIdMessage = "Incorrect value for Pool Id.";

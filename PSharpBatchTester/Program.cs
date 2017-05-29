@@ -106,48 +106,65 @@ namespace PSharpBatchTester
         private static void LocalMain()
         {
             List<Process> ProcessList = new List<Process>();
-            
+
+            var outputFolderPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(config.OutputFolderPath));
+            if (!Directory.Exists(outputFolderPath))
+            {
+                Console.WriteLine("Output directory doesn't exists. Creating directory : "+outputFolderPath);
+                Directory.CreateDirectory(outputFolderPath);
+            }
+
             foreach (var tEntity in config.TestEntities)
             {
                 foreach (var cEntity in tEntity.CommandEntities)
                 {
-                    for (int i = 0; i < cEntity.NumberOfParallelTasks; i++)
+
+                    var directoryName = (string.IsNullOrEmpty(tEntity.TestName)) ? cEntity.CommandName : tEntity.TestName + "_" + cEntity.CommandName;
+                    string commandOutputDirectory = Path.Combine(outputFolderPath, directoryName);
+
+                    if (!Directory.Exists(commandOutputDirectory))
                     {
-                        string FlagString;
-
-                        if (string.IsNullOrEmpty(cEntity.SchedulingStratergy))
-                        {
-                            FlagString = String.Format("/test:{0} /i:{1} {2}", tEntity.ApplicationPath, cEntity.IterationsPerTask, cEntity.CommandFlags);
-                        }
-                        else
-                        {
-                            FlagString = String.Format("/test:{0} /i:{1} {2} /sch:{3}", tEntity.ApplicationPath, cEntity.IterationsPerTask, cEntity.CommandFlags, cEntity.SchedulingStratergy);
-                        }
-                        Console.WriteLine(FlagString);
-                        ProcessStartInfo startInfo = new ProcessStartInfo(
-                                config.PSharpBinariesFolderPath + "\\PSharpTester.exe", FlagString);
-                        startInfo.UseShellExecute = false;
-
-                        Process process = new Process();
-                        process.StartInfo = startInfo;
-                        process.StartInfo.RedirectStandardError = true;
-                        ProcessList.Add(process);
-                        process.Start();
+                        Directory.CreateDirectory(commandOutputDirectory);
                     }
+
+                    var PSharpTesterLocation = Path.Combine(config.PSharpBinariesFolderPath, "PSharpTester.exe");
+
+                    string CommandString;
+
+                    if (string.IsNullOrEmpty(cEntity.SchedulingStratergy))
+                    {
+                        CommandString = String.Format(PSharpBatchTestCommon.Constants.PSharpTestLocalArgsTemplate, PSharpTesterLocation, tEntity.ApplicationPath, 
+                            cEntity.IterationsPerTask, cEntity.NumberOfParallelTasks, cEntity.CommandFlags, commandOutputDirectory);
+                    }
+                    else
+                    {
+                        CommandString = String.Format(PSharpBatchTestCommon.Constants.PSharpTestLocalArgsTemplate, PSharpTesterLocation, tEntity.ApplicationPath,
+                            cEntity.IterationsPerTask, cEntity.NumberOfParallelTasks, cEntity.CommandFlags, commandOutputDirectory, cEntity.SchedulingStratergy);
+                    }
+                    Console.WriteLine("Starting command [" + cEntity.CommandName + "]");
+                    ProcessStartInfo startInfo = new ProcessStartInfo("cmd", CommandString);
+                    startInfo.UseShellExecute = false;
+                    startInfo.WorkingDirectory = commandOutputDirectory;
+                    Process process = new Process();
+                    process.StartInfo = startInfo;
+                    //process.StartInfo.RedirectStandardError = true;
+                    ProcessList.Add(process);
+                    process.Start();
                 }
             }
 
+            Console.WriteLine("Waiting for tasks to complete");
             foreach (var p in ProcessList)
             {
                 try
                 {
                     p.WaitForExit();
-                    string sr = p.StandardError.ReadToEnd();
-                    var outputFolderPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(config.OutputFolderPath));
-                    File.WriteAllText(outputFolderPath +"\\out_" + p.Id + ".txt", sr);
                 }
                 catch (Exception ex) { }
             }
+            Console.WriteLine("All tasks complete.");
+            Console.WriteLine("Your output is stored in the following location : "+outputFolderPath);
+
         }
 
         private static async Task MainAsync()
