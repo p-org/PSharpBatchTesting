@@ -26,16 +26,22 @@ namespace PSharpBatchTestCommon
                 {
                     //contains parallel
                     entity.NumberOfParallelTasks = int.Parse(word.Substring("/parallel:".Length));
+                    flags.Append(word);
+                    flags.Append(" ");
                 }
                 else if (word.StartsWith("/i:"))
                 {
                     //contains parallel
                     entity.IterationsPerTask = int.Parse(word.Substring("/i:".Length));
+                    flags.Append(word);
+                    flags.Append(" ");
                 }
                 else if (word.StartsWith("/sch:"))
                 {
                     //contains parallel
                     entity.SchedulingStratergy = word.Substring("/sch:".Length);
+                    flags.Append(word);
+                    flags.Append(" ");
                 }
                 else if (word.StartsWith("/test:"))
                 {
