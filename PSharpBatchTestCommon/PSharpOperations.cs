@@ -11,17 +11,57 @@ namespace PSharpBatchTestCommon
 {
     public class PSharpOperations
     {
-
-        public static void ParseCommandEntities(ref PSharpCommandEntities entity)
+        public static void ParseCommandEntities(Dictionary<string, string> DeclareDictionary, ref PSharpCommandEntities entity)
         {
             var flags = new StringBuilder();
-            var wordlist = entity.CommandFlags.Split(' ');
+            List<string> wordlist = entity.CommandFlags.Split(' ').ToList();
+
+            List<string> removeWords = new List<string>();
+            List<string> addWords = new List<string>();
+            foreach(var word in wordlist)
+            {
+                if (word.Contains("%"))
+                {
+                    int StartIndex = word.IndexOf("%");
+                    int LastIndex = word.LastIndexOf("%");
+                    string toReplaceKey = word.Substring(StartIndex + 1, (LastIndex - 1 - StartIndex));
+                    string toReplace = word.Substring(StartIndex, (LastIndex - StartIndex + 1));
+                    string value = null; 
+                    if (DeclareDictionary.ContainsKey(toReplaceKey))
+                    {
+                        value = DeclareDictionary[toReplaceKey];
+                    }
+                    else
+                    {
+                        value = Environment.ExpandEnvironmentVariables(toReplace);
+                    }
+                    string newWord = word.Replace(toReplace, value);
+
+                    addWords.Add(newWord);
+                    removeWords.Add(word);
+                }
+            }
+
+            foreach(var word in removeWords)
+            {
+                wordlist.Remove(word);
+            }
+
+            foreach(var word in addWords)
+            {
+                foreach(var w in word.Split(' '))
+                {
+                    wordlist.Add(w);
+                }
+            }
+            
             foreach (var word in wordlist)
             {
                 if (word.Length == 0)
                 {
                     continue;
                 }
+
                 else if (word.StartsWith("/parallel:"))
                 {
                     //contains parallel
@@ -31,14 +71,12 @@ namespace PSharpBatchTestCommon
                 }
                 else if (word.StartsWith("/i:"))
                 {
-                    //contains parallel
                     entity.IterationsPerTask = int.Parse(word.Substring("/i:".Length));
                     flags.Append(word);
                     flags.Append(" ");
                 }
                 else if (word.StartsWith("/sch:"))
                 {
-                    //contains parallel
                     entity.SchedulingStratergy = word.Substring("/sch:".Length);
                     flags.Append(word);
                     flags.Append(" ");

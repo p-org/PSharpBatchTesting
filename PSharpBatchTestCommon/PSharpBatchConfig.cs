@@ -45,6 +45,20 @@ namespace PSharpBatchTestCommon
         //Run PSharpTester locally
         public bool RunLocally;
 
+        public static Dictionary<string, string> DeclareDictionary = new Dictionary<string, string>();
+
+        [XmlArray("Declarations")]
+        [XmlArrayItem("Declare")]
+        public List<DeclareVariables> Variables;
+
+        public class DeclareVariables
+        {
+            [XmlAttribute("Name")]
+            public string Name;
+            [XmlAttribute("Value")]
+            public string Value;
+        }
+
         [XmlArray("Tests")]
         [XmlArrayItem("Test")]
         public List<PSharpTestEntities> TestEntities;
@@ -111,8 +125,13 @@ namespace PSharpBatchTestCommon
                 config = XMLDeserialize(fileStream);
                 fileStream.Close();
             }
-            config.ValidateAndParse();
+            //config.ValidateAndParse();
             return config;
+        }
+
+        public static void SetVariables()
+        {
+
         }
 
         public void XMLSerialize(Stream writeStream)
@@ -183,6 +202,12 @@ namespace PSharpBatchTestCommon
                 throw new PSharpConfigValidateException(Constants.ExceptionNoTestEntityMessage);
             }
 
+            foreach(var variable in Variables)
+            {
+                if(!DeclareDictionary.ContainsKey(variable.Name))
+                    DeclareDictionary.Add(variable.Name, variable.Value);
+            }
+
             foreach(var tEntity in TestEntities)
             {
                 if(null == tEntity)
@@ -207,7 +232,7 @@ namespace PSharpBatchTestCommon
                 {
                     var cEntity = tEntity.CommandEntities[i];
 
-                    PSharpOperations.ParseCommandEntities(ref cEntity);
+                    PSharpOperations.ParseCommandEntities(DeclareDictionary, ref cEntity);
 
                     if(null == cEntity)
                     {

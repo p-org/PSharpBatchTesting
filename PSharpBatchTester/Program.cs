@@ -28,16 +28,6 @@ namespace PSharpBatchTester
 
         static void Main(string[] args)
         {
-            //if (args.Count() < 2)
-            //{
-            //    if (args.Count() < 1)
-            //    {
-            //        Console.WriteLine("No Config file path given");
-            //    }
-            //    Console.WriteLine("No auth config file path given.");
-            //    return;
-            //}
-
             LogSession = Guid.NewGuid().ToString();
 
             try
@@ -50,24 +40,10 @@ namespace PSharpBatchTester
                 //Get args
                 string configFilePath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(args[0].Substring(8)));
                 config = PSharpBatchConfig.LoadFromXML(configFilePath);
-                //PSharpOperations.ParseConfig(config);
-
-                if (config.RunLocally || args.Any(v => v.Equals("/local")))
-                {
-                    LocalMain();
-                    return;
-                }
-
-                if (!args.Any(v => v.StartsWith("/auth:")))
-                {
-                    Console.WriteLine("No auth config file path given.");
-                    return;
-                }
                 
-                //If it contains 3 args, then get the location of the test application
-                if(args.Count() >= 3)
+                if(args.Count() >= 2)
                 {
-                    for(int i = 2; i < args.Count(); i++)
+                    for(int i = 1; i < args.Count(); i++)
                     {
                         if (args[i].StartsWith("/output:"))
                         {
@@ -82,7 +58,31 @@ namespace PSharpBatchTester
                             string authConfigFilePath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(args[1].Substring(6)));
                             authConfig = PSharpBatchAuthConfig.LoadFromXML(authConfigFilePath);
                         }
+                        else if (args[i].StartsWith("/local"))
+                        {
+                            config.RunLocally = true;
+                        }
+                        else if (args[i].StartsWith("/declare:"))
+                        {
+                            var words = args[i].Substring("/declare:".Length).Split('=');
+                            if (!PSharpBatchConfig.DeclareDictionary.ContainsKey(words[0]))
+                                PSharpBatchConfig.DeclareDictionary.Add(words[0], words[1]);
+                            else
+                                PSharpBatchConfig.DeclareDictionary[words[0]] = words[1];
+                        }
                     }
+                }
+                config.ValidateAndParse();
+                if (config.RunLocally)
+                {
+                    LocalMain();
+                    return;
+                }
+
+                if (!args.Any(v => v.StartsWith("/auth:")))
+                {
+                    Console.WriteLine("No auth config file path given.");
+                    return;
                 }
 
                 //We call the async main so we can await on many async calls
@@ -118,7 +118,11 @@ namespace PSharpBatchTester
 
         private static void LocalMain()
         {
-            List<Process> ProcessList = new List<Process>();
+            int NumPassedTests = 0;
+            int NumFailedTests = 0;
+            int NumTotalTests = 0;
+            int NumCrashedTests = 0;
+            double ElapsedTime = 0;
 
             var outputFolderPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(config.OutputFolderPath));
             if (!Directory.Exists(outputFolderPath))
@@ -131,7 +135,7 @@ namespace PSharpBatchTester
             {
                 foreach (var cEntity in tEntity.CommandEntities)
                 {
-
+                    NumTotalTests++;
                     var directoryName = (string.IsNullOrEmpty(tEntity.TestName)) ? cEntity.CommandName : tEntity.TestName + "_" + cEntity.CommandName;
                     string commandOutputDirectory = Path.Combine(outputFolderPath, directoryName);
 
@@ -147,40 +151,42 @@ namespace PSharpBatchTester
                     CommandString = String.Format(PSharpBatchTestCommon.Constants.PSharpTestLocalArgsTemplate, PSharpTesterLocation, tEntity.ApplicationPath,
                             cEntity.CommandFlags, commandOutputDirectory);
 
-                    //if (string.IsNullOrEmpty(cEntity.SchedulingStratergy))
-                    //{
-                    //    CommandString = String.Format(PSharpBatchTestCommon.Constants.PSharpTestLocalArgsTemplate, PSharpTesterLocation, tEntity.ApplicationPath, 
-                    //        /*cEntity.IterationsPerTask, cEntity.NumberOfParallelTasks,*/ cEntity.CommandFlags, commandOutputDirectory);
-                    //}
-                    //else
-                    //{
-                    //    CommandString = String.Format(PSharpBatchTestCommon.Constants.PSharpTestLocalArgsTemplate, PSharpTesterLocation, tEntity.ApplicationPath,
-                    //        cEntity.IterationsPerTask, cEntity.NumberOfParallelTasks, cEntity.CommandFlags, commandOutputDirectory, cEntity.SchedulingStratergy);
-                    //}
                     Console.WriteLine("Starting command [" + cEntity.CommandName + "]");
                     ProcessStartInfo startInfo = new ProcessStartInfo("cmd", CommandString);
                     startInfo.UseShellExecute = false;
                     startInfo.WorkingDirectory = commandOutputDirectory;
                     Process process = new Process();
                     process.StartInfo = startInfo;
-                    //process.StartInfo.RedirectStandardError = true;
-                    ProcessList.Add(process);
                     process.Start();
-                }
-            }
+                    try
+                    {
+                        process.WaitForExit();
+                        if (Directory.GetFiles(commandOutputDirectory, "*.pstrace").Length > 0)
+                        {
+                            Console.WriteLine("... Failed: " + tEntity.TestName + " " + cEntity.CommandName);
+                            NumFailedTests++;
+                        }
+                        else
+                        {
+                            NumPassedTests++;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("... Crashed: " + tEntity.TestName + " " + cEntity.CommandName);
+                        NumCrashedTests++;
+                    }
 
-            Console.WriteLine("Waiting for tasks to complete");
-            foreach (var p in ProcessList)
-            {
-                try
-                {
-                    p.WaitForExit();
+                    ElapsedTime += (process.ExitTime - process.StartTime).TotalMilliseconds;
                 }
-                catch (Exception ex) { }
             }
             Console.WriteLine("All tasks complete.");
-            Console.WriteLine("Your output is stored in the following location : "+outputFolderPath);
-
+            Console.WriteLine("Your output is stored in the following location : " + outputFolderPath);
+            Console.WriteLine("... Testing statistics:");
+            Console.WriteLine("..... Total number of tests: " + NumTotalTests);
+            Console.WriteLine("..... Number of passed tests: " + NumPassedTests);
+            Console.WriteLine("..... Number of failed tests: " + NumFailedTests);
+            Console.WriteLine("..... Elapsed time: " + (ElapsedTime / 1000) + "s");
         }
 
         private static async Task MainAsync()
@@ -191,8 +197,7 @@ namespace PSharpBatchTester
 
             //Creating BlobOperations
             BlobOperations blobOperations = new BlobOperations(authConfig.StorageAccountName, authConfig.StorageAccountKey, config.BlobContainerExpiryHours);
-
-
+            
             //Pool operations
             if (!(await batchOperations.CheckIfPoolExists(config.PoolId)))
             {
