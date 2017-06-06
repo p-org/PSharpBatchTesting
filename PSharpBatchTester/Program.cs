@@ -161,14 +161,14 @@ namespace PSharpBatchTester
                     try
                     {
                         process.WaitForExit();
-                        if (Directory.GetFiles(commandOutputDirectory, "*.pstrace").Length > 0)
+                        if (File.ReadAllText(commandOutputDirectory + "\\psharpbatchout.txt").Contains("Found 0 bugs"))
                         {
-                            Console.WriteLine("... Failed: " + tEntity.TestName + " " + cEntity.CommandName);
-                            NumFailedTests++;
+                            NumPassedTests++;
                         }
                         else
                         {
-                            NumPassedTests++;
+                            Console.WriteLine("... Failed: " + tEntity.TestName + " " + cEntity.CommandName);
+                            NumFailedTests++;
                         }
                     }
                     catch (Exception)
