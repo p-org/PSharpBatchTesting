@@ -181,8 +181,8 @@ namespace PSharpBatchTestCommon
             {
                 throw new PSharpConfigValidateException(Constants.ExceptionNodeVirtualMachineSizeMessage);
             }
-
-            if (string.IsNullOrEmpty(PSharpBinariesFolderPath) || !Directory.Exists(Path.GetFullPath(Environment.ExpandEnvironmentVariables(PSharpBinariesFolderPath))))
+            PSharpBinariesFolderPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(PSharpBinariesFolderPath));
+            if (string.IsNullOrEmpty(PSharpBinariesFolderPath) || !Directory.Exists(PSharpBinariesFolderPath))
             {
                 throw new PSharpConfigValidateException(Constants.ExceptionPSharpBinariesPathMessage);
             }
