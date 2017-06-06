@@ -47,11 +47,11 @@ namespace PSharpBatchTester
                     {
                         if (args[i].StartsWith("/output:"))
                         {
-                            config.OutputFolderPath = args[i].Substring("/output:".Length);
+                            config.OutputFolderPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(args[i].Substring("/output:".Length)));
                         }
                         else if (args[i].StartsWith("/binaries:"))
                         {
-                            config.PSharpBinariesFolderPath = args[i].Substring("/binaries:".Length);
+                            config.PSharpBinariesFolderPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(args[i].Substring("/binaries:".Length)));
                         }
                         else if (args[i].StartsWith("/auth:"))
                         {
