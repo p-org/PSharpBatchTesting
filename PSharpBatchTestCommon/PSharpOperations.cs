@@ -66,20 +66,10 @@ namespace PSharpBatchTestCommon
                 {
                     //contains parallel
                     entity.NumberOfParallelTasks = int.Parse(word.Substring("/parallel:".Length));
-                    flags.Append(word);
-                    flags.Append(" ");
-                }
-                else if (word.StartsWith("/i:"))
-                {
-                    entity.IterationsPerTask = int.Parse(word.Substring("/i:".Length));
-                    flags.Append(word);
-                    flags.Append(" ");
                 }
                 else if (word.StartsWith("/sch:"))
                 {
                     entity.SchedulingStratergy = word.Substring("/sch:".Length);
-                    flags.Append(word);
-                    flags.Append(" ");
                 }
                 else if (word.StartsWith("/test:"))
                 {

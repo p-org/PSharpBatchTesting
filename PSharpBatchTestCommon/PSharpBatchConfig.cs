@@ -72,14 +72,24 @@ namespace PSharpBatchTestCommon
 
             [XmlElement("Command")]
             public PSharpCommandEntities[] CommandEntities;
+
+            public int NumberOfTasks()
+            {
+                int numberOfTasks = 0;
+
+                foreach(var cEntity in CommandEntities)
+                {
+                    numberOfTasks += cEntity.NumberOfParallelTasks;
+                }
+
+                return numberOfTasks;
+            }
         }
 
         public class PSharpCommandEntities
         {
             [XmlIgnore]
             public int NumberOfParallelTasks;
-            [XmlIgnore]
-            public int IterationsPerTask;
             [XmlIgnore]
             public string SchedulingStratergy;
             [XmlAttribute("Flags")]
@@ -91,13 +101,12 @@ namespace PSharpBatchTestCommon
             public PSharpCommandEntities()
             {
                 NumberOfParallelTasks = 1;
-                IterationsPerTask = 1;
             }
 
             public override string ToString()
             {
-                string format = "NumberOfParallelTasks:{0}\nIterations:{1}\nCommandFlags:{3}";
-                return string.Format(format, NumberOfParallelTasks, IterationsPerTask, CommandFlags);
+                string format = "NumberOfParallelTasks:{0}\nCommandFlags:{1}";
+                return string.Format(format, NumberOfParallelTasks);
             }
         }
 
@@ -247,10 +256,6 @@ namespace PSharpBatchTestCommon
                     if (cEntity.NumberOfParallelTasks < 1)
                     {
                         throw new PSharpConfigValidateException(string.Format(Constants.ExceptionParallelTaskMessage, i, TestEntities.IndexOf(tEntity)));
-                    }
-                    if (cEntity.IterationsPerTask < 1)
-                    {
-                        throw new PSharpConfigValidateException(string.Format(Constants.ExceptionIterationsMessage, i, TestEntities.IndexOf(tEntity)));
                     }
                     if (string.IsNullOrEmpty(cEntity.CommandName))
                     {

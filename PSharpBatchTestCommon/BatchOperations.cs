@@ -141,7 +141,7 @@ namespace PSharpBatchTestCommon
         /// <param name="jobId">Identifier for the Job</param>
         /// <param name="poolId">Identifier of the pool to which the Job should be added</param>
         /// <returns></returns>
-        public async Task CreateJobAsync(string jobId, string poolId, IList<ResourceFile> resourceFiles, string outputContainerSasUrl)
+        public async Task CreateJobAsync(string jobId, string poolId, IList<ResourceFile> resourceFiles, string outputContainerSasUrl, int numberOfTasks)
         {
             Console.WriteLine("Creating job [{0}]...", jobId);
 
@@ -151,7 +151,9 @@ namespace PSharpBatchTestCommon
 
             string jobManagerID = jobId + "ManagerTask";
 
-            string jobManagerTaskCommandLine = string.Format("cmd /c PSharpBatchJobManager.exe \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" ", BatchAccountName, BatchAccountKey, BatchAccountUrl, jobId, jobManagerID, outputContainerSasUrl);
+            string jobManagerTaskCommandLine = $"cmd /c PSharpBatchJobManager.exe \"{BatchAccountName}\" \"{BatchAccountKey}\" \"{BatchAccountUrl}\" \"{jobId}\" \"{jobManagerID}\" \"{outputContainerSasUrl}\" \"{numberOfTasks}\" ";
+
+            //string jobManagerTaskCommandLine = string.Format("cmd /c PSharpBatchJobManager.exe \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" ", BatchAccountName, BatchAccountKey, BatchAccountUrl, jobId, jobManagerID, outputContainerSasUrl);
 
             job.JobManagerTask = new JobManagerTask
                 (
@@ -219,7 +221,7 @@ namespace PSharpBatchTestCommon
                         if (string.IsNullOrEmpty(cEntity.SchedulingStratergy))
                         {
                             //No shceduling statergy provided
-                            command = string.Format(Constants.PSharpTaskCommandFormatWithFlags, Path.GetFileName(tEntity.ApplicationPath), cEntity.IterationsPerTask, cEntity.CommandFlags);
+                            command = string.Format(Constants.PSharpTaskCommandFormatWithFlags, Path.GetFileName(tEntity.ApplicationPath), cEntity.CommandFlags);
                         }
                         else
                         {
@@ -233,7 +235,7 @@ namespace PSharpBatchTestCommon
                             {
                                 schFlag = "/sch:" + cEntity.SchedulingStratergy;
                             }
-                            command = string.Format(Constants.PSharpTaskCommandFormatWithSchFlags, Path.GetFileName(tEntity.ApplicationPath), cEntity.IterationsPerTask, cEntity.CommandFlags, schFlag);
+                            command = string.Format(Constants.PSharpTaskCommandFormatWithSchFlags, Path.GetFileName(tEntity.ApplicationPath), cEntity.CommandFlags, schFlag);
                         }
                         taskCommands.Add(command);
                         string taskId = taskIDPrefix + "_" + tEntity.TestName + "_" + cEntity.CommandName + "_" + i;

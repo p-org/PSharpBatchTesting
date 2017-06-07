@@ -148,8 +148,18 @@ namespace PSharpBatchTester
 
                     string CommandString;
 
+                    string parallelAndSchedulerFlags = string.Empty;
+                    if(cEntity.NumberOfParallelTasks > 1)
+                    {
+                        parallelAndSchedulerFlags += $"/parallel:{cEntity.NumberOfParallelTasks} ";
+                    }
+                    if (!string.IsNullOrEmpty(cEntity.SchedulingStratergy))
+                    {
+                        parallelAndSchedulerFlags += $"/sch:{cEntity.SchedulingStratergy} ";
+                    }
+
                     CommandString = String.Format(PSharpBatchTestCommon.Constants.PSharpTestLocalArgsTemplate, PSharpTesterLocation, tEntity.ApplicationPath,
-                            cEntity.CommandFlags, commandOutputDirectory);
+                            cEntity.CommandFlags, parallelAndSchedulerFlags, commandOutputDirectory);
 
                     Console.WriteLine("Starting command [" + cEntity.CommandName + "]");
                     ProcessStartInfo startInfo = new ProcessStartInfo("cmd", CommandString);
@@ -233,13 +243,16 @@ namespace PSharpBatchTester
             await blobOperations.CreateOutputContainer(config.PoolId, JobId);
             var outputContainerSasUrl = blobOperations.GetOutputContainerSasUrl();
 
+            var numberOfTasks = config.TestEntities.Select(t => t.NumberOfTasks()).Sum();
+
             //Creating the job
             await batchOperations.CreateJobAsync
                 (
                     jobId: JobId,
                     poolId: config.PoolId,
                     resourceFiles: jobManagerFiles,
-                    outputContainerSasUrl: outputContainerSasUrl
+                    outputContainerSasUrl: outputContainerSasUrl,
+                    numberOfTasks: numberOfTasks
                 );
 
             //Adding tasks

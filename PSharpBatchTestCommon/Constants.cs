@@ -27,10 +27,10 @@ namespace PSharpBatchTestCommon
         public const string PSharpDefaultTaskCommandLine = "cmd /c %AZ_BATCH_NODE_SHARED_DIR%\\PSharpTester.exe /test:RaceTest.exe 1>out.txt 2>&1";
         public const string PSharpTaskCommandFormat = "cmd /c %AZ_BATCH_NODE_SHARED_DIR%\\PSharpTester.exe /test:{0} /i:{1} 1>psharpbatchout.txt 2>&1";
         
-        //{0}: Test application, {1}: number of iterations, {2}: Flags
-        public const string PSharpTaskCommandFormatWithFlags = "cmd /c %AZ_BATCH_NODE_SHARED_DIR%\\PSharpTester.exe /test:.\\{0} /i:{1} {2} 1>psharpbatchout.txt 2>&1"; 
-        //{0}: Test application, {1}: number of iterations, {2}: Flags, {3}: Scheduler (and testing-process-id)
-        public const string PSharpTaskCommandFormatWithSchFlags = "cmd /c %AZ_BATCH_NODE_SHARED_DIR%\\PSharpTester.exe /test:.\\{0} /i:{1} {2} {3} 1>psharpbatchout.txt 2>&1";
+        //{0}: Test application, {1}: Flags
+        public const string PSharpTaskCommandFormatWithFlags = "cmd /c %AZ_BATCH_NODE_SHARED_DIR%\\PSharpTester.exe /test:.\\{0} {1} 1>psharpbatchout.txt 2>&1"; 
+        //{0}: Test application, {1}: Flags, {2}: Scheduler (and testing-process-id)
+        public const string PSharpTaskCommandFormatWithSchFlags = "cmd /c %AZ_BATCH_NODE_SHARED_DIR%\\PSharpTester.exe /test:.\\{0} {1} {2} 1>psharpbatchout.txt 2>&1";
 
 
         //Coverage Report command template
@@ -41,7 +41,7 @@ namespace PSharpBatchTestCommon
         //Local command constants
         //{0} : PSharpTester Paht | {1} : Test application path | {2} : Number of iterations 
         //{3} : Number of parallel tasks | {4} : other flags | {5} : Output Directory | {6} : Scheduler
-        public const string PSharpTestLocalArgsTemplate = "/c {0} /test:{1} {2} /o:{3} 1>psharpbatchout.txt 2>&1";
+        public const string PSharpTestLocalArgsTemplate = "/c {0} /test:{1} {2} {3} /o:{4} 1>psharpbatchout.txt 2>&1";
         //public const string PSharpTestLocalArgsWithSchFlagTemplate = "/c {0} /test:{1} /i:{2} /parallel:{3} {4} /o:{5} /sch:{6} 1>psharpbatchout.txt 2>&1";
 
         public const int BatchTestChunkSize = 10;
@@ -62,7 +62,6 @@ namespace PSharpBatchTestCommon
         public const string ExceptionDeleteContainerMessage = "Incorrect value for delete container after done.";
         public const string ExceptionApplicationPathMessage = "Incorrect value for application path in test case {0}.";
         public const string ExceptionParallelTaskMessage = "Incorrect value for Number of parallel task in command {0} of test case {1}. The value should be atleast 1.";
-        public const string ExceptionIterationsMessage = "Incorrect value for number of iterations in command {0} of test case {1}. The value should be atlease 1.";
         public const string ExceptionCommandFlagsMessage = "Incorrect value for Command flags in command {0} of test case {1}.";
         public const string ExceptionCommandNameMessage = "Incorrect value for Command Name in command {0} of test case {1}.";
         public const string ExceptionSchedulingStatergyMessage = "Incorrect value for Scheduling Stratergy in command {0} of test case {1}.";

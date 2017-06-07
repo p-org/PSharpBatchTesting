@@ -26,6 +26,8 @@ namespace PSharpBatchJobManager
 
         private static string OutputContainerSasUrl;
 
+        private static int TotalTaskAdded;
+
         private static BatchClient batchClient;
         private static CloudJob Job;
 
@@ -48,6 +50,7 @@ namespace PSharpBatchJobManager
             JobId = args[3];
             JobManagerName = args[4];
             OutputContainerSasUrl = args[5];
+            TotalTaskAdded = int.Parse(args[6]);
 
             try
             {
@@ -112,8 +115,23 @@ namespace PSharpBatchJobManager
                 }
 
                 //Getting all the Tasks in the Job
-                var tasks = Job.ListTasks().ToList();
-                tasks = tasks.Where(t => !t.Id.Equals(JobManagerName)).ToList();
+                List<CloudTask> tasks = new List<CloudTask>();
+
+                while (true)
+                {
+                    tasks = Job.ListTasks().ToList();
+                    tasks = tasks.Where(t => !t.Id.Equals(JobManagerName)).ToList();
+                    if(tasks.Count >= TotalTaskAdded)
+                    {
+                        Log("Total Task Added: " + TotalTaskAdded);
+                        break;
+                    }
+                    else
+                    {
+                        Log("Total Task Added not matching: " + TotalTaskAdded+" going to sleep.");
+                        Thread.Sleep(TaskCompletionWaitPeriod);
+                    }
+                }
 
                 Log("Number of tasks: " + tasks.Count);
 
