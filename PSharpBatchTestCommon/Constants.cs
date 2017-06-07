@@ -44,6 +44,8 @@ namespace PSharpBatchTestCommon
         public const string PSharpTestLocalArgsTemplate = "/c {0} /test:{1} {2} /o:{3} 1>psharpbatchout.txt 2>&1";
         //public const string PSharpTestLocalArgsWithSchFlagTemplate = "/c {0} /test:{1} /i:{2} /parallel:{3} {4} /o:{5} /sch:{6} 1>psharpbatchout.txt 2>&1";
 
+        public const int BatchTestChunkSize = 10;
+
         //Exception Messages
         public const string ExceptionPoolIdMessage = "Incorrect value for Pool Id.";
         public const string ExceptionJobIdMessage = "Incorrect value for Job Id.";

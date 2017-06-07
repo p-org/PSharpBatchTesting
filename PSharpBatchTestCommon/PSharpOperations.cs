@@ -9,7 +9,7 @@ using static PSharpBatchTestCommon.PSharpBatchConfig;
 
 namespace PSharpBatchTestCommon
 {
-    public class PSharpOperations
+    public static class PSharpOperations
     {
         public static void ParseCommandEntities(Dictionary<string, string> DeclareDictionary, ref PSharpCommandEntities entity)
         {
@@ -128,6 +128,20 @@ namespace PSharpBatchTestCommon
             mergeProcess.WaitForExit();
         }
 
+        /// <summary>
+        /// Splitting a list into smaller chunks
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="me"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        public static List<List<T>> SplitList<T>(this List<T> me, int size)
+        {
+            var list = new List<List<T>>();
+            for (int i = 0; i < me.Count; i += size)
+                list.Add(me.GetRange(i, Math.Min(size, me.Count - i)));
+            return list;
+        }
 
     }
 }

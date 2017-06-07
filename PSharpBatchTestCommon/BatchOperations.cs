@@ -246,7 +246,16 @@ namespace PSharpBatchTestCommon
             }
 
             Console.WriteLine("Adding {0} tasks to job [{1}]...", tasks.Count, jobId);
-            await batchClient.JobOperations.AddTaskAsync(jobId, tasks, timeout: TimeSpan.FromMinutes(30));
+
+            //Add tasks in chunks
+            var TaskChunks = PSharpOperations.SplitList(tasks, Constants.BatchTestChunkSize);
+
+            foreach(List<CloudTask> subTaskList in TaskChunks)
+            {
+                await batchClient.JobOperations.AddTaskAsync(jobId, subTaskList, timeout: TimeSpan.FromMinutes(30));
+            }
+
+            //await batchClient.JobOperations.AddTaskAsync(jobId, tasks, timeout: TimeSpan.FromMinutes(30));
 
             return tasks;
         }
