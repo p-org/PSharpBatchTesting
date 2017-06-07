@@ -59,7 +59,7 @@ namespace PSharpBatchTestCommon
         /// <returns></returns>
         public async Task CreateOutputContainer(string poolId, string jobId)
         {
-            outputContainerName = string.Format(Constants.OutputContainerNameFormat, poolId.ToLower(), jobId.ToLower());
+            outputContainerName = string.Format(Constants.OutputContainerNameFormat, jobId.ToLower());
             await CreateContainerIfNotExistAsync(outputContainerName);
         }
 
@@ -145,7 +145,7 @@ namespace PSharpBatchTestCommon
             int i = 0;
             foreach(var filePath in applicationPaths)
             {
-                var containerName = string.Format(Constants.InputContainerNameFormatForTestEntity, poolId.ToLower(), jobId.ToLower(), i);
+                var containerName = string.Format(Constants.InputContainerNameFormatForTestEntity, jobId.ToLower(), i);
                 i++;
                 await CreateContainerIfNotExistAsync(containerName);
                 inputContainers.Add(containerName);
@@ -194,7 +194,7 @@ namespace PSharpBatchTestCommon
         public async Task<List<ResourceFile>> UploadJobManagerFiles(string jobManagerFilePath, string poolId, string jobId)
         {
             jobManagerFilePath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(jobManagerFilePath));
-            jobManagerContainerName = string.Format(Constants.JobManagerContainerNameFormat, poolId.ToLower(), jobId.ToLower());
+            jobManagerContainerName = string.Format(Constants.JobManagerContainerNameFormat, jobId.ToLower());
             await CreateContainerIfNotExistAsync(jobManagerContainerName);
             //jobManagerFiles = await UploadFilesAndFoldersToContainerAsync(jobManagerContainerName, jobManagerFilePaths);
             jobManagerFiles = await UploadDllsAndDependenciesAsync(jobManagerContainerName, jobManagerFilePath);

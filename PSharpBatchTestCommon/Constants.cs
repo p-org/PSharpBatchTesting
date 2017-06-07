@@ -12,10 +12,10 @@ namespace PSharpBatchTestCommon
         //Storage Constants
         public static string StorageConnectionStringFormat = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}";
         public static string NodeContainerNameFormat = "application{0}"; //{0}:PoolID.
-        public static string InputContainerNameFormat = "input{0}{1}"; //{0}:PoolID. {1}:JobID
-        public static string InputContainerNameFormatForTestEntity = "input{0}{1}path{2}"; //{0}:PoolID. {1}:JobID {2}:Path index in the Hash
-        public static string OutputContainerNameFormat = "output{0}{1}"; //{0}:PoolID. {1}:JobID
-        public static string JobManagerContainerNameFormat = "jobmanager{0}{1}"; //{0}:PoolID. {1}:JobID
+        public static string InputContainerNameFormat = "input{0}"; //{0}:JobID
+        public static string InputContainerNameFormatForTestEntity = "input{0}path{1}"; //{0}:JobID {1}:Path index in the Hash
+        public static string OutputContainerNameFormat = "output{0}"; //{0}:JobID
+        public static string JobManagerContainerNameFormat = "jobmanager{0}"; //{1}:JobID
         //public static int BlobContainerSasExpiryHours = 10;
 
 
@@ -47,6 +47,7 @@ namespace PSharpBatchTestCommon
         //Exception Messages
         public const string ExceptionPoolIdMessage = "Incorrect value for Pool Id.";
         public const string ExceptionJobIdMessage = "Incorrect value for Job Id.";
+        public const string ExceptionJobIdLengthMessage = "Job Id too long. Job Id should be less than 20 characters.";
         public const string ExceptionTaskIdMessage = "Incorrect value for Task Id.";
         public const string ExceptionBlobExpiryMessage = "Incorrect value for Blob expiry.";
         public const string ExceptionNumNodesMessage = "Incorrect value for Number of nodes. Number of nodes should be greater than 2.";

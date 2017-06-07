@@ -158,6 +158,10 @@ namespace PSharpBatchTestCommon
             {
                 throw new PSharpConfigValidateException(Constants.ExceptionJobIdMessage);
             }
+            if(JobDefaultId.Length > 20)
+            {
+                throw new PSharpConfigValidateException(Constants.ExceptionJobIdLengthMessage);
+            }
             if (string.IsNullOrEmpty(TaskDefaultId))
             {
                 throw new PSharpConfigValidateException(Constants.ExceptionTaskIdMessage);
@@ -218,7 +222,8 @@ namespace PSharpBatchTestCommon
                 {
                     tEntity.TestName = string.Empty;
                 }
-                if (string.IsNullOrEmpty(tEntity.ApplicationPath) || !File.Exists(Path.GetFullPath(Environment.ExpandEnvironmentVariables(tEntity.ApplicationPath))))
+                tEntity.ApplicationPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(tEntity.ApplicationPath));
+                if (string.IsNullOrEmpty(tEntity.ApplicationPath) || !File.Exists(tEntity.ApplicationPath))
                 {
                     throw new PSharpConfigValidateException(string.Format(Constants.ExceptionApplicationPathMessage, TestEntities.IndexOf(tEntity)));
                 }
