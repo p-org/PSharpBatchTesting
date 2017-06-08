@@ -175,10 +175,6 @@ namespace PSharpBatchTestCommon
             {
                 throw new PSharpConfigValidateException(Constants.ExceptionTaskIdMessage);
             }
-            if (!(BlobContainerExpiryHours>0) && BlobContainerExpiryHours != -1)
-            {
-                throw new PSharpConfigValidateException(Constants.ExceptionBlobExpiryMessage);
-            }
             if (NumberOfNodesInPool<2)
             {
                 throw new PSharpConfigValidateException(Constants.ExceptionNumNodesMessage);
