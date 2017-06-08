@@ -36,7 +36,7 @@ namespace PSharpBatchTestCommon
         //Other constants
         int ContainerExpiryHours;
 
-        public BlobOperations(string StorageAccountName, string StorageAccountKey, int ContainerExpiryHours)
+        public BlobOperations(string StorageAccountName, string StorageAccountKey, int ContainerExpiryHours = -1)
         {
             this.StorageAccountName = StorageAccountName;
             this.StorageAccountKey = StorageAccountKey;
@@ -153,12 +153,12 @@ namespace PSharpBatchTestCommon
                 List<ResourceFile> resFiles;
                 try
                 {
-                    resFiles = await UploadDllsAndDependenciesAsync(containerName, filePath);
+                    resFiles = await UploadDllsAndDependenciesAsync(containerName, filePath, true);
                 }
                 catch(Exception e)
                 {
                     Console.WriteLine(e.Message);
-                    resFiles = await UploadFilesAndFoldersToContainerAsync(containerName, new List<string> { Path.GetDirectoryName(filePath) });
+                    resFiles = await UploadFilesAndFoldersToContainerAsync(containerName, new List<string> { Path.GetDirectoryName(filePath) }, true);
                 }
                 foreach(var tEntities in TestEntities.Where(t=>filePath.Equals(Path.GetFullPath(Environment.ExpandEnvironmentVariables(t.ApplicationPath)))))
                 {
@@ -197,7 +197,7 @@ namespace PSharpBatchTestCommon
             jobManagerContainerName = string.Format(Constants.JobManagerContainerNameFormat, jobId.ToLower());
             await CreateContainerIfNotExistAsync(jobManagerContainerName);
             //jobManagerFiles = await UploadFilesAndFoldersToContainerAsync(jobManagerContainerName, jobManagerFilePaths);
-            jobManagerFiles = await UploadDllsAndDependenciesAsync(jobManagerContainerName, jobManagerFilePath);
+            jobManagerFiles = await UploadDllsAndDependenciesAsync(jobManagerContainerName, jobManagerFilePath, true);
             return jobManagerFiles;
         }
 
@@ -231,7 +231,7 @@ namespace PSharpBatchTestCommon
 
         public string GetOutputContainerSasUrl()
         {
-            return GetContainerSasUrl(outputContainerName, SharedAccessBlobPermissions.Write);
+            return GetContainerSasUrl(outputContainerName, SharedAccessBlobPermissions.Write, true);
         }
 
         public CloudStorageAccount GetCloudStorageAccount()
@@ -414,13 +414,13 @@ namespace PSharpBatchTestCommon
             return filePaths;
         }
 
-        private string GetContainerSasUrl(string containerName, SharedAccessBlobPermissions permissions)
+        private string GetContainerSasUrl(string containerName, SharedAccessBlobPermissions permissions, bool infiniteTimeout = false)
         {
             // Set the expiry time and permissions for the container access signature. In this case, no start time is specified,
             // so the shared access signature becomes valid immediately
             SharedAccessBlobPolicy sasConstraints = new SharedAccessBlobPolicy
             {
-                SharedAccessExpiryTime = (ContainerExpiryHours < 0)?DateTime.MaxValue.ToUniversalTime():DateTime.UtcNow.AddHours(ContainerExpiryHours),
+                SharedAccessExpiryTime = (ContainerExpiryHours < 0 || infiniteTimeout)?DateTime.MaxValue.ToUniversalTime():DateTime.UtcNow.AddHours(ContainerExpiryHours),
                 Permissions = permissions
             };
 

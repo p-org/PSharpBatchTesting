@@ -206,7 +206,7 @@ namespace PSharpBatchTester
             BatchOperations batchOperations = new BatchOperations(authConfig.BatchAccountName, authConfig.BatchAccountKey, authConfig.BatchAccountUrl);
 
             //Creating BlobOperations
-            BlobOperations blobOperations = new BlobOperations(authConfig.StorageAccountName, authConfig.StorageAccountKey, config.BlobContainerExpiryHours);
+            BlobOperations blobOperations = new BlobOperations(authConfig.StorageAccountName, authConfig.StorageAccountKey);
             
             //Pool operations
             if (!(await batchOperations.CheckIfPoolExists(config.PoolId)))
