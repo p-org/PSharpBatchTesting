@@ -41,7 +41,7 @@ namespace PSharpBatchJobManager
 
         static int Main(string[] args)
         {
-            if (args.Count() < 6) { Log("args error"); return -1; }
+            if (args.Count() < 8) { Log("args error"); return -1; }
 
             //Job Started
             Log("");
