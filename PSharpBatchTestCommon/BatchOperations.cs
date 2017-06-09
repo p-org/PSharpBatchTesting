@@ -141,7 +141,7 @@ namespace PSharpBatchTestCommon
         /// <param name="jobId">Identifier for the Job</param>
         /// <param name="poolId">Identifier of the pool to which the Job should be added</param>
         /// <returns></returns>
-        public async Task CreateJobAsync(string jobId, string poolId, IList<ResourceFile> resourceFiles, string outputContainerSasUrl, int numberOfTasks)
+        public async Task CreateJobAsync(string jobId, string poolId, IList<ResourceFile> resourceFiles, string outputContainerSasUrl, int numberOfTasks, int timeoutInHours)
         {
             Console.WriteLine("Creating job [{0}]...", jobId);
 
@@ -151,7 +151,7 @@ namespace PSharpBatchTestCommon
 
             string jobManagerID = jobId + "ManagerTask";
 
-            string jobManagerTaskCommandLine = $"cmd /c PSharpBatchJobManager.exe \"{BatchAccountName}\" \"{BatchAccountKey}\" \"{BatchAccountUrl}\" \"{jobId}\" \"{jobManagerID}\" \"{outputContainerSasUrl}\" \"{numberOfTasks}\" ";
+            string jobManagerTaskCommandLine = $"cmd /c PSharpBatchJobManager.exe \"{BatchAccountName}\" \"{BatchAccountKey}\" \"{BatchAccountUrl}\" \"{jobId}\" \"{jobManagerID}\" \"{outputContainerSasUrl}\" \"{numberOfTasks}\" \"{timeoutInHours}\" ";
 
             //string jobManagerTaskCommandLine = string.Format("cmd /c PSharpBatchJobManager.exe \"{0}\" \"{1}\" \"{2}\" \"{3}\" \"{4}\" \"{5}\" \"{6}\" ", BatchAccountName, BatchAccountKey, BatchAccountUrl, jobId, jobManagerID, outputContainerSasUrl);
 
