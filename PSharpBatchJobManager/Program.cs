@@ -28,13 +28,15 @@ namespace PSharpBatchJobManager
 
         private static int TotalTaskAdded;
 
+        private static int TimeoutInHours;
+
         private static BatchClient batchClient;
         private static CloudJob Job;
 
         private const int TaskCompletionWaitPeriod = 30000;   //Every 30 seconds
         private const int TaskWaitPeriod = 5000; //5 seconds
         private const string LogFileName = "JobManagerLog.txt";
-        private static TimeSpan timeoutTimeSpan = TimeSpan.FromHours(2);
+        private static TimeSpan timeoutTimeSpan;
         private static bool timeoutFlag = false;
 
         static int Main(string[] args)
@@ -51,6 +53,9 @@ namespace PSharpBatchJobManager
             JobManagerName = args[4];
             OutputContainerSasUrl = args[5];
             TotalTaskAdded = int.Parse(args[6]);
+            TimeoutInHours = int.Parse(args[7]);
+
+            timeoutTimeSpan = (TimeoutInHours<0)? TimeSpan.MaxValue : TimeSpan.FromHours(TimeoutInHours);
 
             try
             {
@@ -248,19 +253,11 @@ namespace PSharpBatchJobManager
 
         private static bool CheckIfSupportedFileType(string fileName)
         {
+            if (!fileName.ToLower().StartsWith(@"wd\output\")) { return false; }
             if(fileName.EndsWith(".txt") || fileName.EndsWith(".pstrace") || 
                 fileName.EndsWith(".schedule") || fileName.EndsWith("dgml") ||
                 fileName.EndsWith(".sci"))
             {
-                if (fileName.EndsWith(".txt"))
-                {
-                    //Download text files containing only the test output (psharpbatchoutput.txt) or the coverage report.
-                    if (fileName.EndsWith(".coverage.txt") || fileName.Contains("psharpbatchout.txt"))
-                    {
-                        return true;
-                    }
-                    return false;
-                }
                 return true;
             }
             return false;

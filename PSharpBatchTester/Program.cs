@@ -252,7 +252,8 @@ namespace PSharpBatchTester
                     poolId: config.PoolId,
                     resourceFiles: jobManagerFiles,
                     outputContainerSasUrl: outputContainerSasUrl,
-                    numberOfTasks: numberOfTasks
+                    numberOfTasks: numberOfTasks,
+                    timeoutInHours: config.TaskWaitHours
                 );
 
             //Adding tasks
