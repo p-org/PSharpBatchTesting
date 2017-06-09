@@ -75,6 +75,10 @@ namespace PSharpBatchTestCommon
                 {
                     //Ignore this flag
                 }
+                else if (word.StartsWith("/o:"))
+                {
+                    //ignore this
+                }
                 else if (word.Contains("PSharpTester.exe"))
                 {
                     //Do nothing
