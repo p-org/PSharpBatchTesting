@@ -253,7 +253,13 @@ namespace PSharpBatchJobManager
 
         private static bool CheckIfSupportedFileType(string fileName)
         {
-            if (!fileName.ToLower().StartsWith(@"wd\output\")) { return false; }
+            if (!fileName.ToLower().StartsWith(@"wd\output\")) {
+                if (fileName.ToLower().Contains("psharpbatchout"))
+                {
+                    return true;
+                }
+                return false;
+            }
             if(fileName.EndsWith(".txt") || fileName.EndsWith(".pstrace") || 
                 fileName.EndsWith(".schedule") || fileName.EndsWith("dgml") ||
                 fileName.EndsWith(".sci"))
