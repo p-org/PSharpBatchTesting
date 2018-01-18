@@ -85,7 +85,7 @@ namespace PSharpBatchTestCommon
         /// <param name="NodeStartCommand">Node start command</param>
         /// <returns></returns>
         public async Task CreatePoolIfNotExistAsync(string poolId,
-            IList<ResourceFile> resourceFiles, int numberOfNodes = 1, string OSFamily = "5", string VirtualMachineSize = "small", string NodeStartCommand = Constants.PSharpDefaultNodeStartCommand)
+            IList<ResourceFile> resourceFiles, int numberOfNodes = 1, string OSFamily = "5", string VirtualMachineSize = "small", string NodeStartCommand = Constants.PSharpDefaultNodeStartCommand, int NodeMaxConcurrentTasks = 1)
         {
             CloudPool pool = null;
             try
@@ -100,6 +100,9 @@ namespace PSharpBatchTestCommon
                     virtualMachineSize: VirtualMachineSize,                                              // Defualt : small -> single-core, 1.75 GB memory, 225 GB disk
                     cloudServiceConfiguration: new CloudServiceConfiguration(osFamily: OSFamily));      // Default : 5 -> Windows Server 2012 R2 with .Net Framework 4.6.2 support
 
+
+                //Seeting node max concurrent tasks
+                pool.MaxTasksPerComputeNode = NodeMaxConcurrentTasks;
 
                 // Create and assign the StartTask that will be executed when compute nodes join the pool.
                 // In this case, we copy the StartTask's resource files (that will be automatically downloaded
