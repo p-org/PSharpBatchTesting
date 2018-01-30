@@ -26,6 +26,7 @@ namespace PSharpBatchTestCommon
         public int NumberOfNodesInPool;
         public string NodeOsFamily; //Default Value : 5
         public string NodeVirtualMachineSize; //Default value : small
+        public int NodeMaxConcurrentTasks; //Default value : 1
 
         //File Details
         public string PSharpBinariesFolderPath;
@@ -41,6 +42,9 @@ namespace PSharpBatchTestCommon
 
         //Delete containers
         public bool DeleteContainerAfterDone;
+
+        //Delete pool
+        public bool DeletePoolAfterDone;
 
         //Run PSharpTester locally
         public bool RunLocally;
@@ -115,6 +119,8 @@ namespace PSharpBatchTestCommon
             //Default Values
             this.NodeOsFamily = "5";
             this.NodeVirtualMachineSize = "small";
+            this.DeletePoolAfterDone = false;
+            this.NodeMaxConcurrentTasks = 1;
         }
 
         public void SaveAsXML(string path)

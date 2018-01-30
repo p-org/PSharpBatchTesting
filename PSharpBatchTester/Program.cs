@@ -223,7 +223,8 @@ namespace PSharpBatchTester
                        numberOfNodes: config.NumberOfNodesInPool,
                        OSFamily: config.NodeOsFamily,
                        VirtualMachineSize: config.NodeVirtualMachineSize,
-                       NodeStartCommand: PSharpBatchTestCommon.Constants.PSharpDefaultNodeStartCommand
+                       NodeStartCommand: PSharpBatchTestCommon.Constants.PSharpDefaultNodeStartCommand,
+                       NodeMaxConcurrentTasks: config.NodeMaxConcurrentTasks
                     );
             }
 
@@ -306,6 +307,11 @@ namespace PSharpBatchTester
                 await blobOperations.DeleteInputContainer();
                 await blobOperations.DeleteJobManagerContainer();
                 await blobOperations.DeleteOutputContainer();
+            }
+
+            if(config.DeletePoolAfterDone)
+            {
+                await batchOperations.DeletePoolAsync(config.PoolId);
             }
         }
     }
