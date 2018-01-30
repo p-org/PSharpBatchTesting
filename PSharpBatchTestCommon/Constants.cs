@@ -74,10 +74,11 @@ namespace PSharpBatchTestCommon
         public const string ExceptionBatchAccountKeyMessage = "Incorrect value for Batch Account Key in Auth Config file.";
         public const string ExceptionStorageAccountNameMessage = "Incorrect value for Storage Account Name in Auth Config file.";
         public const string ExceptionStorageAccountKeyMessage = "Incorrect value for Storage Account Key in Auth Config file.";
+		public const string ExceptionBatchFileNotFoundMessage = "Incorrect Batch file. Check argument.";
 
 
-        //Util Methods
-        public static string GetTimeStamp()
+		//Util Methods
+		public static string GetTimeStamp()
         {
             //All time will be in UTC
             return DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");

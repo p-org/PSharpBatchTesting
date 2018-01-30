@@ -49,6 +49,13 @@ namespace PSharpBatchTestCommon
         //Run PSharpTester locally
         public bool RunLocally;
 
+		//Run and monitor
+		[XmlIgnore]
+		public bool MonitorBatch;
+		[XmlIgnore]
+		public string BatchFilePath;
+		
+
         public static Dictionary<string, string> DeclareDictionary = new Dictionary<string, string>();
 
         [XmlArray("Declarations")]
@@ -212,6 +219,14 @@ namespace PSharpBatchTestCommon
                 throw new PSharpConfigValidateException(Constants.ExceptionTaskWaitHoursMessage);
             }
 
+			if (MonitorBatch)
+			{
+				if(!string.IsNullOrEmpty(BatchFilePath) && !File.Exists(BatchFilePath))
+				{
+					throw new PSharpConfigValidateException(Constants.ExceptionBatchFileNotFoundMessage);
+				}
+			}
+
             if(null == TestEntities || TestEntities.Count == 0)
             {
                 throw new PSharpConfigValidateException(Constants.ExceptionNoTestEntityMessage);
@@ -263,6 +278,7 @@ namespace PSharpBatchTestCommon
                     {
                         throw new PSharpConfigValidateException(string.Format(Constants.ExceptionCommandNameMessage, i, TestEntities.IndexOf(tEntity)));
                     }
+
                     //Todo : check list of supported schedulers
                     //if (!string.IsNullOrEmpty(cEntity.SchedulingStratergy) && !cEntity.SchedulingStratergy.StartsWith("/sch:"))
                     //{

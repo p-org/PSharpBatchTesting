@@ -83,6 +83,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BatchJob.cs" />
     <Compile Include="BatchOperations.cs" />
     <Compile Include="BlobOperations.cs" />
     <Compile Include="Constants.cs" />

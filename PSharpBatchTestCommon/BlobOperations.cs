@@ -28,10 +28,6 @@ namespace PSharpBatchTestCommon
         List<ResourceFile> jobManagerFiles;
         List<ResourceFile> inputFiles;
         Dictionary<PSharpTestEntities, List<ResourceFile>> inputFilesDict;
-        string nodeContainerName;
-        string outputContainerName;
-        string jobManagerContainerName;
-        List<string> inputContainers;
 
         //Other constants
         int ContainerExpiryHours;
@@ -57,26 +53,38 @@ namespace PSharpBatchTestCommon
         /// <param name="poolId"></param>
         /// <param name="jobId"></param>
         /// <returns></returns>
-        public async Task CreateOutputContainer(string poolId, string jobId)
+        public async Task<string> CreateOutputContainer(string poolId, string jobId)
         {
-            outputContainerName = string.Format(Constants.OutputContainerNameFormat, jobId.ToLower());
+            var outputContainerName = string.Format(Constants.OutputContainerNameFormat, jobId.ToLower());
             await CreateContainerIfNotExistAsync(outputContainerName);
+			return outputContainerName;
         }
 
-        /// <summary>
-        /// Delete output container.
-        /// </summary>
-        /// <returns></returns>
-        public async Task DeleteOutputContainer()
-        {
-            try
-            {
-                await DeleteContainerAsync(outputContainerName);
-            }
-            catch (Exception exp) { return; }
-        }
+		public async Task DeleteAllContainers(BatchJob batchJob)
+		{
+			try
+			{
+				await DeleteContainerAsync(batchJob.JobManagerContainerID);
+				
+			}
+			catch { return; }
+			try
+			{
+				foreach (var cName in batchJob.InputContainerIDs)
+				{
+					await DeleteContainerAsync(cName);
+				}
+			}
+			catch { return; }
+			try
+			{
+				await DeleteContainerAsync(batchJob.OutputContainerID);
+			}
+			catch { return; }
+			
+		}
 
-        public async Task DownloadOutputFiles(string directoryPath)
+        public async Task DownloadOutputFiles(string directoryPath, string outputContainerName)
         {
             directoryPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(directoryPath));
             if (!Directory.Exists(directoryPath))
@@ -87,17 +95,6 @@ namespace PSharpBatchTestCommon
         }
 
         /// <summary>
-        /// Delete all the containers created for the job
-        /// </summary>
-        /// <returns></returns>
-        public async Task DeleteContainers()
-        {
-            await DeleteInputContainer();
-            await DeleteOutputContainer();
-            await DeleteJobManagerContainer();
-        }
-
-        /// <summary>
         /// Uploads the node file and its dependencies to azure storage.
         /// </summary>
         /// <param name="nodeFodlerPath"></param>
@@ -105,7 +102,7 @@ namespace PSharpBatchTestCommon
         /// <returns></returns>
         public async Task<List<ResourceFile>> UploadNodeFiles(string nodeFodlerPath, string poolId)
         {
-            nodeContainerName = string.Format(Constants.NodeContainerNameFormat, poolId.ToLower());
+            var nodeContainerName = string.Format(Constants.NodeContainerNameFormat, poolId.ToLower());
             await CreateContainerIfNotExistAsync(nodeContainerName);
             var nodeFilePaths = new List<string> { nodeFodlerPath };
             nodeFiles = await UploadFilesAndFoldersToContainerAsync(nodeContainerName, nodeFilePaths, true);
@@ -116,11 +113,12 @@ namespace PSharpBatchTestCommon
         /// Deletes the node container.
         /// </summary>
         /// <returns></returns>
-        public async Task DeleteNodeContainer()
+        public async Task DeleteNodeContainer(string poolId)
         {
             try
             {
-                await DeleteContainerAsync(nodeContainerName);
+				var nodeContainer = string.Format(Constants.NodeContainerNameFormat, poolId.ToLower());
+				await DeleteContainerAsync(nodeContainer);
             }
             catch (Exception exp) { return; }
         }
@@ -134,11 +132,11 @@ namespace PSharpBatchTestCommon
         /// <param name="poolId"></param>
         /// <param name="jobId"></param>
         /// <returns></returns>
-        public async Task<Dictionary<PSharpTestEntities, List<ResourceFile>>> UploadInputFilesFromTestEntities(List<PSharpTestEntities> TestEntities, string poolId, string jobId)
+        public async Task<Tuple<Dictionary<PSharpTestEntities, List<ResourceFile>>, List<string>>> UploadInputFilesFromTestEntities(List<PSharpTestEntities> TestEntities, string poolId, string jobId)
         {
             inputFiles = new List<ResourceFile>();
             inputFilesDict = new Dictionary<PSharpTestEntities, List<ResourceFile>>();
-            inputContainers = new List<string>();
+            var inputContainers = new List<string>();
             
             //Creating application hashset
             HashSet<string> applicationPaths = new HashSet<string>(TestEntities.Select(ce => Path.GetFullPath(Environment.ExpandEnvironmentVariables(ce.ApplicationPath))));
@@ -165,23 +163,7 @@ namespace PSharpBatchTestCommon
                     inputFilesDict.Add(tEntities, resFiles);
                 }
             }
-            return inputFilesDict;
-        }
-
-        /// <summary>
-        /// Deletes input container
-        /// </summary>
-        /// <returns></returns>
-        public async Task DeleteInputContainer()
-        {
-            try
-            {
-                foreach(var container in inputContainers)
-                {
-                    await DeleteContainerAsync(container);
-                }
-            }
-            catch (Exception exp) { return; }
+			return new Tuple<Dictionary<PSharpTestEntities, List<ResourceFile>>, List<string>>(inputFilesDict, inputContainers);
         }
 
         /// <summary>
@@ -191,27 +173,14 @@ namespace PSharpBatchTestCommon
         /// <param name="poolId"></param>
         /// <param name="jobId"></param>
         /// <returns></returns>
-        public async Task<List<ResourceFile>> UploadJobManagerFiles(string jobManagerFilePath, string poolId, string jobId)
+        public async Task<Tuple<List<ResourceFile>, string>> UploadJobManagerFiles(string jobManagerFilePath, string poolId, string jobId)
         {
             jobManagerFilePath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(jobManagerFilePath));
-            jobManagerContainerName = string.Format(Constants.JobManagerContainerNameFormat, jobId.ToLower());
+            var jobManagerContainerName = string.Format(Constants.JobManagerContainerNameFormat, jobId.ToLower());
             await CreateContainerIfNotExistAsync(jobManagerContainerName);
             //jobManagerFiles = await UploadFilesAndFoldersToContainerAsync(jobManagerContainerName, jobManagerFilePaths);
             jobManagerFiles = await UploadDllsAndDependenciesAsync(jobManagerContainerName, jobManagerFilePath, true);
-            return jobManagerFiles;
-        }
-
-        /// <summary>
-        /// Deletes JobManager container.
-        /// </summary>
-        /// <returns></returns>
-        public async Task DeleteJobManagerContainer()
-        {
-            try
-            {
-                await DeleteContainerAsync(jobManagerContainerName);
-            }
-            catch (Exception exp) { return; }
+            return new Tuple<List<ResourceFile>, string>(jobManagerFiles, jobManagerContainerName);
         }
 
         public List<ResourceFile> GetApplicationResourceFiles()
@@ -229,7 +198,7 @@ namespace PSharpBatchTestCommon
             return jobManagerFiles;
         }
 
-        public string GetOutputContainerSasUrl()
+        public string GetOutputContainerSasUrl(string outputContainerName)
         {
             return GetContainerSasUrl(outputContainerName, SharedAccessBlobPermissions.Write, true);
         }
