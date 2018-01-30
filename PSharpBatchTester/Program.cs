@@ -70,14 +70,14 @@ namespace PSharpBatchTester
                             else
                                 PSharpBatchConfig.DeclareDictionary[words[0]] = words[1];
                         }
-						else if (args[i].StartsWith("/monitor"))
-						{
-							config.MonitorBatch = true;
-						}
-						else if (args[i].StartsWith("/psbatch:"))
-						{
-							config.BatchFilePath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(args[i].Substring("/psbatch:".Length)));
-						}
+                        else if (args[i].StartsWith("/monitor"))
+                        {
+                            config.MonitorBatch = true;
+                        }
+                        else if (args[i].StartsWith("/psbatch:"))
+                        {
+                            config.BatchFilePath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(args[i].Substring("/psbatch:".Length)));
+                        }
                     }
                 }
                 config.ValidateAndParse();
@@ -93,24 +93,24 @@ namespace PSharpBatchTester
                     return;
                 }
 
-				if (!config.MonitorBatch || (config.MonitorBatch && string.IsNullOrEmpty(config.BatchFilePath)))
-				{
-					//We call the async main so we can await on many async calls
-					MainAsync().Wait();
-					return;
-				}
+                if (!config.MonitorBatch || (config.MonitorBatch && string.IsNullOrEmpty(config.BatchFilePath)))
+                {
+                    //We call the async main so we can await on many async calls
+                    MainAsync().Wait();
+                    return;
+                }
 
-				if (config.MonitorBatch)
-				{
-					if(string.IsNullOrEmpty(config.BatchFilePath))
-					{
-						Console.WriteLine("Please provide a psbatch file to monitor.");
-						return;
-					}
+                if (config.MonitorBatch)
+                {
+                    if(string.IsNullOrEmpty(config.BatchFilePath))
+                    {
+                        Console.WriteLine("Please provide a psbatch file to monitor.");
+                        return;
+                    }
 
-					var batchJob = BatchJob.LoadFromXML(config.BatchFilePath);
-					MonitorAsync(batchJob).Wait();
-				}
+                    var batchJob = BatchJob.LoadFromXML(config.BatchFilePath);
+                    MonitorAsync(batchJob).Wait();
+                }
             }
             catch(PSharpConfigValidateException psharpConfigException)
             {
@@ -259,26 +259,26 @@ namespace PSharpBatchTester
             string jobTimeStamp = PSharpBatchTestCommon.Constants.GetTimeStamp();
             JobId = config.JobDefaultId + jobTimeStamp;
 
-			//Creating BatchJob object
-			var batchJob = new BatchJob();
-			batchJob.PoolID = config.PoolId;
-			batchJob.JobID = JobId;
+            //Creating BatchJob object
+            var batchJob = new BatchJob();
+            batchJob.PoolID = config.PoolId;
+            batchJob.JobID = JobId;
 
 
             //Uploading the data files to azure storage and get the resource objects.
             var inputTupleRes = await blobOperations.UploadInputFilesFromTestEntities(config.TestEntities, config.PoolId, JobId);
 
-			var inputFilesDict = inputTupleRes.Item1;
-			batchJob.InputContainerIDs = inputTupleRes.Item2;
+            var inputFilesDict = inputTupleRes.Item1;
+            batchJob.InputContainerIDs = inputTupleRes.Item2;
 
-			//Uploading JobManager Files
-			var jobTupleRes = await blobOperations.UploadJobManagerFiles(jobManagerFilePath, config.PoolId, JobId);
+            //Uploading JobManager Files
+            var jobTupleRes = await blobOperations.UploadJobManagerFiles(jobManagerFilePath, config.PoolId, JobId);
 
-			var jobManagerFiles = jobTupleRes.Item1;
-			batchJob.JobManagerContainerID = jobTupleRes.Item2;
+            var jobManagerFiles = jobTupleRes.Item1;
+            batchJob.JobManagerContainerID = jobTupleRes.Item2;
 
 
-			batchJob.OutputContainerID = await blobOperations.CreateOutputContainer(config.PoolId, JobId);
+            batchJob.OutputContainerID = await blobOperations.CreateOutputContainer(config.PoolId, JobId);
             var outputContainerSasUrl = blobOperations.GetOutputContainerSasUrl(batchJob.OutputContainerID);
 
             var numberOfTasks = config.TestEntities.Select(t => t.NumberOfTasks()).Sum();
@@ -303,72 +303,72 @@ namespace PSharpBatchTester
                     TestEntities: config.TestEntities
                 );
 
-			var outputFolderPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(config.OutputFolderPath));
+            var outputFolderPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(config.OutputFolderPath));
 
-			//Write BatchJob to file
-			Directory.CreateDirectory(outputFolderPath);
-			var batchJobPath = Path.Combine(outputFolderPath, "batchjob.psbatch");
-			batchJob.SaveAsXML(batchJobPath);
+            //Write BatchJob to file
+            Directory.CreateDirectory(outputFolderPath);
+            var batchJobPath = Path.Combine(outputFolderPath, "batchjob.psbatch");
+            batchJob.SaveAsXML(batchJobPath);
 
-			Logger.FlushLogs();
+            Logger.FlushLogs();
 
-			if (config.MonitorBatch)
-			{
-				await MonitorAsync(batchJob);
-			}
+            if (config.MonitorBatch)
+            {
+                await MonitorAsync(batchJob);
+            }
         }
 
-		private static async Task MonitorAsync(BatchJob batchJob)
-		{
-			//Creating BatchOperations
-			BatchOperations batchOperations = new BatchOperations(authConfig.BatchAccountName, authConfig.BatchAccountKey, authConfig.BatchAccountUrl);
+        private static async Task MonitorAsync(BatchJob batchJob)
+        {
+            //Creating BatchOperations
+            BatchOperations batchOperations = new BatchOperations(authConfig.BatchAccountName, authConfig.BatchAccountKey, authConfig.BatchAccountUrl);
 
-			//Creating BlobOperations
-			BlobOperations blobOperations = new BlobOperations(authConfig.StorageAccountName, authConfig.StorageAccountKey);
+            //Creating BlobOperations
+            BlobOperations blobOperations = new BlobOperations(authConfig.StorageAccountName, authConfig.StorageAccountKey);
 
-			//Monitor tasks
-			var taskResult = await batchOperations.MonitorTasks
-				(
-					jobId: JobId,
-					timeout: TimeSpan.FromHours(config.TaskWaitHours)
-				);
+            //Monitor tasks
+            var taskResult = await batchOperations.MonitorTasks
+                (
+                    jobId: JobId,
+                    timeout: TimeSpan.FromHours(config.TaskWaitHours)
+                );
 
-			var outputFolderPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(config.OutputFolderPath));
+            var outputFolderPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(config.OutputFolderPath));
 
-			await blobOperations.DownloadOutputFiles(outputFolderPath, batchJob.OutputContainerID);
+            await blobOperations.DownloadOutputFiles(outputFolderPath, batchJob.OutputContainerID);
 
-			try
-			{
-				PSharpOperations.MergeOutputCoverageReport(outputFolderPath, Path.GetFullPath(Environment.ExpandEnvironmentVariables(config.PSharpBinariesFolderPath)));
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e.Message);
-				Console.WriteLine(e.StackTrace);
-			}
+            try
+            {
+                PSharpOperations.MergeOutputCoverageReport(outputFolderPath, Path.GetFullPath(Environment.ExpandEnvironmentVariables(config.PSharpBinariesFolderPath)));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
 
-			//All task completed
-			Console.WriteLine();
-			//Console.Write("Delete job? [yes] no: ");
-			//string response = Console.ReadLine().ToLower();
-			if (/*response == "y" || response == "yes"*/ config.DeleteJobAfterDone)
-			{
-				await batchOperations.DeleteJobAsync(JobId);
-			}
-			Console.WriteLine();
-			//Console.Write("Delete Containers? [yes] no: ");
-			//response = Console.ReadLine().ToLower();
-			if (/*response == "y" || response == "yes"*/config.DeleteContainerAfterDone)
-			{
-				await blobOperations.DeleteAllContainers(batchJob);
-			}
+            //All task completed
+            Console.WriteLine();
+            //Console.Write("Delete job? [yes] no: ");
+            //string response = Console.ReadLine().ToLower();
+            if (/*response == "y" || response == "yes"*/ config.DeleteJobAfterDone)
+            {
+                await batchOperations.DeleteJobAsync(JobId);
+            }
+            Console.WriteLine();
+            //Console.Write("Delete Containers? [yes] no: ");
+            //response = Console.ReadLine().ToLower();
+            if (/*response == "y" || response == "yes"*/config.DeleteContainerAfterDone)
+            {
+                await blobOperations.DeleteAllContainers(batchJob);
+            }
 
-			if (config.DeletePoolAfterDone)
-			{
-				await blobOperations.DeleteNodeContainer(config.PoolId);
-				await batchOperations.DeletePoolAsync(config.PoolId);
-			}
-		}
+            if (config.DeletePoolAfterDone)
+            {
+                await blobOperations.DeleteNodeContainer(config.PoolId);
+                await batchOperations.DeletePoolAsync(config.PoolId);
+            }
+        }
 
-	}
+    }
 }

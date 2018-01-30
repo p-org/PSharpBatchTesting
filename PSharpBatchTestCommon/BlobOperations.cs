@@ -57,32 +57,32 @@ namespace PSharpBatchTestCommon
         {
             var outputContainerName = string.Format(Constants.OutputContainerNameFormat, jobId.ToLower());
             await CreateContainerIfNotExistAsync(outputContainerName);
-			return outputContainerName;
+            return outputContainerName;
         }
 
-		public async Task DeleteAllContainers(BatchJob batchJob)
-		{
-			try
-			{
-				await DeleteContainerAsync(batchJob.JobManagerContainerID);
-				
-			}
-			catch { return; }
-			try
-			{
-				foreach (var cName in batchJob.InputContainerIDs)
-				{
-					await DeleteContainerAsync(cName);
-				}
-			}
-			catch { return; }
-			try
-			{
-				await DeleteContainerAsync(batchJob.OutputContainerID);
-			}
-			catch { return; }
-			
-		}
+        public async Task DeleteAllContainers(BatchJob batchJob)
+        {
+            try
+            {
+                await DeleteContainerAsync(batchJob.JobManagerContainerID);
+                
+            }
+            catch { return; }
+            try
+            {
+                foreach (var cName in batchJob.InputContainerIDs)
+                {
+                    await DeleteContainerAsync(cName);
+                }
+            }
+            catch { return; }
+            try
+            {
+                await DeleteContainerAsync(batchJob.OutputContainerID);
+            }
+            catch { return; }
+            
+        }
 
         public async Task DownloadOutputFiles(string directoryPath, string outputContainerName)
         {
@@ -117,8 +117,8 @@ namespace PSharpBatchTestCommon
         {
             try
             {
-				var nodeContainer = string.Format(Constants.NodeContainerNameFormat, poolId.ToLower());
-				await DeleteContainerAsync(nodeContainer);
+                var nodeContainer = string.Format(Constants.NodeContainerNameFormat, poolId.ToLower());
+                await DeleteContainerAsync(nodeContainer);
             }
             catch (Exception exp) { return; }
         }
@@ -163,7 +163,7 @@ namespace PSharpBatchTestCommon
                     inputFilesDict.Add(tEntities, resFiles);
                 }
             }
-			return new Tuple<Dictionary<PSharpTestEntities, List<ResourceFile>>, List<string>>(inputFilesDict, inputContainers);
+            return new Tuple<Dictionary<PSharpTestEntities, List<ResourceFile>>, List<string>>(inputFilesDict, inputContainers);
         }
 
         /// <summary>
