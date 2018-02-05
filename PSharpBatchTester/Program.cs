@@ -344,7 +344,7 @@ namespace PSharpBatchTester
             //Monitor tasks
             var taskResult = await batchOperations.MonitorTasks
                 (
-                    jobId: JobId,
+                    jobId: batchJob.JobID,
                     timeout: TimeSpan.FromHours(config.TaskWaitHours)
                 );
 
@@ -364,24 +364,20 @@ namespace PSharpBatchTester
 
             //All task completed
             Console.WriteLine();
-            //Console.Write("Delete job? [yes] no: ");
-            //string response = Console.ReadLine().ToLower();
-            if (/*response == "y" || response == "yes"*/ config.DeleteJobAfterDone)
+            if ( config.DeleteJobAfterDone)
             {
-                await batchOperations.DeleteJobAsync(JobId);
+                await batchOperations.DeleteJobAsync(batchJob.JobID);
             }
             Console.WriteLine();
-            //Console.Write("Delete Containers? [yes] no: ");
-            //response = Console.ReadLine().ToLower();
-            if (/*response == "y" || response == "yes"*/config.DeleteContainerAfterDone)
+            if (config.DeleteContainerAfterDone)
             {
                 await blobOperations.DeleteAllContainers(batchJob);
             }
 
             if (config.DeletePoolAfterDone)
             {
-                await blobOperations.DeleteNodeContainer(config.PoolId);
-                await batchOperations.DeletePoolAsync(config.PoolId);
+                await blobOperations.DeleteNodeContainer(batchJob.PoolID);
+                await batchOperations.DeletePoolAsync(batchJob.PoolID);
             }
         }
 

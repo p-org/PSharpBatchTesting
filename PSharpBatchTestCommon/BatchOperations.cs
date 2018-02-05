@@ -370,10 +370,7 @@ namespace PSharpBatchTestCommon
 						//Console.Write($"\rCompleted tasks: {completedTasks} | Running tasks: {runningTasks} | Active tasks: {activeTasks} | Preparing tasks: {preparingTasks}");
 						float progress = ((float)(completedTasks * 100)) / (float)tasks.Count;
 						int progChar = (int)(progress / 10);
-						Console.Write("\r Progress: [");
-						for(int i = 0; i < progChar; i++) { Console.Write("#"); }
-						for (int i = 0; i < 10-progChar; i++) { Console.Write("-"); }
-						Console.Write($"] ({(int)progress}%)");
+						Console.Write($"\rProgress: [{new string('#',progChar)}{new string('-', 10-progChar)}] ({(int)progress}%)");
 
 
 						if (completedTasks == tasks.Count) { break; }
