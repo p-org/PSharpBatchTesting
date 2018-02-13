@@ -13,7 +13,8 @@ namespace PSharpBatchTestCommon
     {
         public static void ParseCommandEntities(Dictionary<string, string> DeclareDictionary, ref PSharpCommandEntities entity)
         {
-            var flags = new StringBuilder();
+
+			var flags = new StringBuilder();
             List<string> wordlist = entity.CommandFlags.Split(' ').ToList();
 
             List<string> removeWords = new List<string>();
@@ -83,6 +84,13 @@ namespace PSharpBatchTestCommon
                 {
                     //Do nothing
                 }
+				else if (word.StartsWith("/i:"))
+				{
+					int.TryParse(word.Substring("/i:".Length), out entity.Iterations);
+					//Just directly add to the flag string
+					flags.Append(word);
+					flags.Append(" ");
+				}
                 else
                 {
                     //Just directly add to the flag string

@@ -207,11 +207,12 @@ namespace PSharpBatchTestCommon
         /// <param name="inputFilesDict"></param>
         /// <param name="CommandEntities"></param>
         /// <returns></returns>
-        public async Task<List<CloudTask>> AddTasksFromTestEntities(string jobId, string taskIDPrefix, Dictionary<PSharpTestEntities, List<ResourceFile>> inputFilesDict, List<PSharpTestEntities> TestEntities)
+        public async Task<Tuple<List<CloudTask>, List<BatchTask>>> AddTasksFromTestEntities(string jobId, string taskIDPrefix, Dictionary<PSharpTestEntities, List<ResourceFile>> inputFilesDict, List<PSharpTestEntities> TestEntities)
         {
             List<CloudTask> tasks = new List<CloudTask>();
             //Creating tasks with iterations
             List<string> taskCommands = new List<string>();
+			List<BatchTask> batchTasks = new List<BatchTask>();
 
             foreach(var tEntity in TestEntities)
             {
@@ -247,6 +248,7 @@ namespace PSharpBatchTestCommon
                         CloudTask task = new CloudTask(taskId, taskCommandLine);
                         task.ResourceFiles = inputFilesDict[tEntity];
                         tasks.Add(task);
+						batchTasks.Add(new BatchTask(taskId, cEntity.Iterations));
                     }
                 }
             }
@@ -263,7 +265,7 @@ namespace PSharpBatchTestCommon
 
             //await batchClient.JobOperations.AddTaskAsync(jobId, tasks, timeout: TimeSpan.FromMinutes(30));
 
-            return tasks;
+            return new Tuple<List<CloudTask>, List<BatchTask>>(tasks, batchTasks);
         }
 
         /// <summary>
@@ -313,7 +315,7 @@ namespace PSharpBatchTestCommon
         /// <param name="jobId">Identifier of the Job to monitor</param>
         /// <param name="timeout">Timeout for monitor operation</param>
         /// <returns></returns>
-        public async Task<bool> MonitorTasks(string jobId, TimeSpan timeout)
+        public async Task<bool> MonitorTasks(string jobId, TimeSpan timeout, List<BatchTask> batchTasks)
         {
             bool allTasksSuccessful = true;
             const string successMessage = "All tasks reached state Completed.";
@@ -340,16 +342,24 @@ namespace PSharpBatchTestCommon
 				{
 					Console.WriteLine();
 					Console.WriteLine();
-					while (!cancellationToken.IsCancellationRequested)
+					Console.Write($"\rProgress: [----------] (0%)");
+					do
 					{
+						//Check for progress.
+						Thread.Sleep(4000);
+
 						int completedTasks = 0;
 						int activeTasks = 0;
 						int runningTasks = 0;
 						int preparingTasks = 0;
 						foreach (var t in tasks)
 						{
+							//Ignore for JobManager
+							if (t.Id.ToLower().Contains("managertask")) { continue; }
+
 							t.Refresh();
-							if(t.State == null) { continue; }
+
+							if (t.State == null) { continue; }
 							switch (t.State)
 							{
 								case TaskState.Completed:
@@ -370,14 +380,12 @@ namespace PSharpBatchTestCommon
 						//Console.Write($"\rCompleted tasks: {completedTasks} | Running tasks: {runningTasks} | Active tasks: {activeTasks} | Preparing tasks: {preparingTasks}");
 						float progress = ((float)(completedTasks * 100)) / (float)tasks.Count;
 						int progChar = (int)(progress / 10);
-						Console.Write($"\rProgress: [{new string('#',progChar)}{new string('-', 10-progChar)}] ({(int)progress}%)");
+						Console.Write($"\rProgress: [{new string('#', progChar)}{new string('-', 10 - progChar)}] ({(int)progress}%)");
 
 
 						if (completedTasks == tasks.Count) { break; }
 
-						//Check for progress.
-						Thread.Sleep(4000);
-					}
+					} while (!cancellationToken.IsCancellationRequested);
 					Console.WriteLine();
 				}, cancellationToken);
 

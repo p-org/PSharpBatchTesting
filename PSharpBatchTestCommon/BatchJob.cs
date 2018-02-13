@@ -19,6 +19,8 @@ namespace PSharpBatchTestCommon
 
         public string OutputContainerID { get; set; }
 
+		public List<BatchTask> Tasks { get; set; }
+
         public void SaveAsXML(string path)
         {
             using (FileStream fileStream = new FileStream(path, FileMode.Create))
@@ -52,4 +54,18 @@ namespace PSharpBatchTestCommon
             return xmlSerializer.Deserialize(readStream) as BatchJob;
         }
     }
+
+	public class BatchTask
+	{
+		public string TaskID { get; set; }
+		public int Iterations { get; set; }
+
+		public BatchTask() { }
+
+		public BatchTask(string taskID, int iterations)
+		{
+			this.TaskID = taskID;
+			this.Iterations = iterations;
+		}
+	}
 }

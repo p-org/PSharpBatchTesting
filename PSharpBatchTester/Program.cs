@@ -310,7 +310,7 @@ namespace PSharpBatchTester
                 );
 
             //Adding tasks
-            await batchOperations.AddTasksFromTestEntities
+            var taskTupleResult = await batchOperations.AddTasksFromTestEntities
                 (
                     jobId: JobId,
                     taskIDPrefix: config.TaskDefaultId,
@@ -318,11 +318,14 @@ namespace PSharpBatchTester
                     TestEntities: config.TestEntities
                 );
 
+			batchJob.Tasks = taskTupleResult.Item2;
+
             var outputFolderPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(config.OutputFolderPath));
 
             //Write BatchJob to file
             Directory.CreateDirectory(outputFolderPath);
             var batchJobPath = Path.Combine(outputFolderPath, "batchjob.psbatch");
+
             batchJob.SaveAsXML(batchJobPath);
 
             Logger.FlushLogs();
@@ -341,11 +344,12 @@ namespace PSharpBatchTester
             //Creating BlobOperations
             BlobOperations blobOperations = new BlobOperations(authConfig.StorageAccountName, authConfig.StorageAccountKey);
 
-            //Monitor tasks
-            var taskResult = await batchOperations.MonitorTasks
-                (
-                    jobId: batchJob.JobID,
-                    timeout: TimeSpan.FromHours(config.TaskWaitHours)
+			//Monitor tasks
+			var taskResult = await batchOperations.MonitorTasks
+				(
+					jobId: batchJob.JobID,
+					timeout: TimeSpan.FromHours(config.TaskWaitHours),
+					batchTasks: batchJob.Tasks
                 );
 
             var outputFolderPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(config.OutputFolderPath));

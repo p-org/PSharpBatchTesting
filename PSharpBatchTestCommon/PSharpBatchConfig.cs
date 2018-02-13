@@ -107,11 +107,14 @@ namespace PSharpBatchTestCommon
             public string CommandFlags;
             [XmlAttribute("Name")]
             public string CommandName;
+			[XmlIgnore]
+			public int Iterations;
             
 
             public PSharpCommandEntities()
             {
                 NumberOfParallelTasks = 1;
+				Iterations = 1;
             }
 
             public override string ToString()
