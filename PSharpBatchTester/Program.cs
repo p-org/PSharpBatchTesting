@@ -33,7 +33,7 @@ namespace PSharpBatchTester
             try
             {
 
-				ParseArgs(args);
+                ParseArgs(args);
 
                 config.ValidateAndParse();
                 if (config.RunLocally)
@@ -71,11 +71,11 @@ namespace PSharpBatchTester
             {
                 Console.WriteLine("Error parsing config values : "+ psharpConfigException.Message);
             }
-			catch (PSharpException psharpException)
-			{
-				Console.WriteLine(psharpException.Message);
-			}
-			catch (AggregateException ae)
+            catch (PSharpException psharpException)
+            {
+                Console.WriteLine(psharpException.Message);
+            }
+            catch (AggregateException ae)
             {
                 #region ExceptionLog
                 Dictionary<string, string> errorProp = new Dictionary<string, string>();
@@ -99,61 +99,61 @@ namespace PSharpBatchTester
             Console.WriteLine();
         }
 
-		private static void ParseArgs(string[] args)
-		{
-			// Throw error if config files are not found
-			if(!args.Any(v => v.StartsWith("/config:")))
-			{
-				throw new PSharpException("No Config file path provided");
-			}
-			if(!args.Any(v => v.StartsWith("/auth:")))
-			{
-				throw new PSharpException("No Auth Config file path provided");
-			}
+        private static void ParseArgs(string[] args)
+        {
+            // Throw error if config files are not found
+            if(!args.Any(v => v.StartsWith("/config:")))
+            {
+                throw new PSharpException("No Config file path provided");
+            }
+            if(!args.Any(v => v.StartsWith("/auth:")))
+            {
+                throw new PSharpException("No Auth Config file path provided");
+            }
 
-			// Parsing the BatchConfig file first
-			var configArg = args.Where(arg => arg.StartsWith("/config:")).First();
-			string configFilePath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(configArg.Substring("/config:".Length)));
-			config = PSharpBatchConfig.LoadFromXML(configFilePath);
+            // Parsing the BatchConfig file first
+            var configArg = args.Where(arg => arg.StartsWith("/config:")).First();
+            string configFilePath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(configArg.Substring("/config:".Length)));
+            config = PSharpBatchConfig.LoadFromXML(configFilePath);
 
-			// Parsing the other arguments.
-			for (int i = 1; i < args.Count(); i++)
-			{
-				if (args[i].StartsWith("/auth:"))
-				{
-					string authConfigFilePath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(args[1].Substring(6)));
-					authConfig = PSharpBatchAuthConfig.LoadFromXML(authConfigFilePath);
-				}
-				else if (args[i].StartsWith("/output:"))
-				{
-					config.OutputFolderPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(args[i].Substring("/output:".Length)));
-				}
-				else if (args[i].StartsWith("/binaries:"))
-				{
-					config.PSharpBinariesFolderPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(args[i].Substring("/binaries:".Length)));
-				}
-				else if (args[i].StartsWith("/local"))
-				{
-					config.RunLocally = true;
-				}
-				else if (args[i].StartsWith("/declare:"))
-				{
-					var words = args[i].Substring("/declare:".Length).Split('=');
-					if (!PSharpBatchConfig.DeclareDictionary.ContainsKey(words[0]))
-						PSharpBatchConfig.DeclareDictionary.Add(words[0], words[1]);
-					else
-						PSharpBatchConfig.DeclareDictionary[words[0]] = words[1];
-				}
-				else if (args[i].StartsWith("/monitor"))
-				{
-					config.MonitorBatch = true;
-				}
-				else if (args[i].StartsWith("/psbatch:"))
-				{
-					config.BatchFilePath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(args[i].Substring("/psbatch:".Length)));
-				}
-			}
-		}
+            // Parsing the other arguments.
+            for (int i = 1; i < args.Count(); i++)
+            {
+                if (args[i].StartsWith("/auth:"))
+                {
+                    string authConfigFilePath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(args[1].Substring(6)));
+                    authConfig = PSharpBatchAuthConfig.LoadFromXML(authConfigFilePath);
+                }
+                else if (args[i].StartsWith("/output:"))
+                {
+                    config.OutputFolderPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(args[i].Substring("/output:".Length)));
+                }
+                else if (args[i].StartsWith("/binaries:"))
+                {
+                    config.PSharpBinariesFolderPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(args[i].Substring("/binaries:".Length)));
+                }
+                else if (args[i].StartsWith("/local"))
+                {
+                    config.RunLocally = true;
+                }
+                else if (args[i].StartsWith("/declare:"))
+                {
+                    var words = args[i].Substring("/declare:".Length).Split('=');
+                    if (!PSharpBatchConfig.DeclareDictionary.ContainsKey(words[0]))
+                        PSharpBatchConfig.DeclareDictionary.Add(words[0], words[1]);
+                    else
+                        PSharpBatchConfig.DeclareDictionary[words[0]] = words[1];
+                }
+                else if (args[i].StartsWith("/monitor"))
+                {
+                    config.MonitorBatch = true;
+                }
+                else if (args[i].StartsWith("/psbatch:"))
+                {
+                    config.BatchFilePath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(args[i].Substring("/psbatch:".Length)));
+                }
+            }
+        }
 
         private static void LocalMain()
         {

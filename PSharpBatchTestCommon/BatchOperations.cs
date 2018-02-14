@@ -332,60 +332,60 @@ namespace PSharpBatchTestCommon
             TaskStateMonitor taskStateMonitor = batchClient.Utilities.CreateTaskStateMonitor();
             try
             {
-				CancellationTokenSource tokenSource = new CancellationTokenSource();
-				var cancellationToken = tokenSource.Token;
+                CancellationTokenSource tokenSource = new CancellationTokenSource();
+                var cancellationToken = tokenSource.Token;
 
-				//Progress monitoring task
-				var monitorTask = Task.Run(() =>
-				{
-					Console.WriteLine();
-					Console.WriteLine();
-					Console.Write($"\rProgress: [----------] (0%)");
+                //Progress monitoring task
+                var monitorTask = Task.Run(() =>
+                {
+                    Console.WriteLine();
+                    Console.WriteLine();
+                    Console.Write($"\rProgress: [----------] (0%)");
 
-					do
-					{
-						Thread.Sleep(4000);
+                    do
+                    {
+                        Thread.Sleep(4000);
 
-						int completedTasks = 0;
-						int activeTasks = 0;
-						int runningTasks = 0;
-						int preparingTasks = 0;
-						foreach (var t in tasks)
-						{
-							t.Refresh();
-							if (t.State == null) { continue; }
-							switch (t.State)
-							{
-								case TaskState.Completed:
-									completedTasks++;
-									break;
-								case TaskState.Active:
-									activeTasks++;
-									break;
-								case TaskState.Preparing:
-									preparingTasks++;
-									break;
-								case TaskState.Running:
-									runningTasks++;
-									break;
-							}
-						}
+                        int completedTasks = 0;
+                        int activeTasks = 0;
+                        int runningTasks = 0;
+                        int preparingTasks = 0;
+                        foreach (var t in tasks)
+                        {
+                            t.Refresh();
+                            if (t.State == null) { continue; }
+                            switch (t.State)
+                            {
+                                case TaskState.Completed:
+                                    completedTasks++;
+                                    break;
+                                case TaskState.Active:
+                                    activeTasks++;
+                                    break;
+                                case TaskState.Preparing:
+                                    preparingTasks++;
+                                    break;
+                                case TaskState.Running:
+                                    runningTasks++;
+                                    break;
+                            }
+                        }
 
-						//Console.Write($"\rCompleted tasks: {completedTasks} | Running tasks: {runningTasks} | Active tasks: {activeTasks} | Preparing tasks: {preparingTasks}");
-						float progress = ((float)(completedTasks * 100)) / (float)tasks.Count;
-						int progChar = (int)(progress / 10);
-						Console.Write($"\rProgress: [{new string('#', progChar)}{new string('-', 10 - progChar)}] ({(int)progress}%)");
+                        //Console.Write($"\rCompleted tasks: {completedTasks} | Running tasks: {runningTasks} | Active tasks: {activeTasks} | Preparing tasks: {preparingTasks}");
+                        float progress = ((float)(completedTasks * 100)) / (float)tasks.Count;
+                        int progChar = (int)(progress / 10);
+                        Console.Write($"\rProgress: [{new string('#', progChar)}{new string('-', 10 - progChar)}] ({(int)progress}%)");
 
 
-						if (completedTasks == tasks.Count) { break; }
+                        if (completedTasks == tasks.Count) { break; }
 
-					} while (!cancellationToken.IsCancellationRequested);
-					Console.WriteLine();
-				}, cancellationToken);
+                    } while (!cancellationToken.IsCancellationRequested);
+                    Console.WriteLine();
+                }, cancellationToken);
 
                 await taskStateMonitor.WhenAll(tasks, TaskState.Completed, timeout);
-				tokenSource.Cancel();
-				monitorTask.Wait();
+                tokenSource.Cancel();
+                monitorTask.Wait();
             }
             catch (TimeoutException)
             {

@@ -55,7 +55,7 @@ namespace PSharpBatchTestCommon
         [XmlIgnore]
         public string BatchFilePath;
         
-		[XmlIgnore]
+        [XmlIgnore]
         public static Dictionary<string, string> DeclareDictionary = new Dictionary<string, string>();
 
         [XmlArray("Declarations")]
