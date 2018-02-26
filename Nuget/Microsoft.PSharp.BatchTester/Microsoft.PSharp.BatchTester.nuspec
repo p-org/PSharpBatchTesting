@@ -2,9 +2,9 @@
 <package >
   <metadata>
     <id>Microsoft.PSharp.BatchTester</id>
-    <version>1.0.4</version>
+    <version>1.0.6</version>
     <authors>priyanmuthu</authors>
-    <owners>priyanmuthu</owners>
+    <owners>Akash.lal,pantazis,priyanmuthu</owners>
     <projectUrl>https://github.com/p-org/PSharpBatchTesting</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Batch testing for PSharp language</description>

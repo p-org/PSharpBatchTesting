@@ -7,6 +7,13 @@ function RunPSharpBatchTester(){
     $configFilePath = Join-Path $ProjectFolderLocation "PSharpBatch.config"
     $AuthConfigPath = Join-Path $ProjectFolderLocation "PSharpBatchAuth.config"
 
+    #Converting to Arguments
+    $configFilePath = "/config:$configFilePath"
+    $AuthConfigPath = "/auth:$AuthConfigPath"
+
+    #Getting Arguments
+    $arguments = $Args -join " "
+
     #Getting the location of the test dll/exe
     $ProjectName = Split-Path -Leaf $ProjectFolderLocation
     $TestApplicationDll = $ProjectName + '.dll'
@@ -31,9 +38,9 @@ function RunPSharpBatchTester(){
     # Run the BatchTester application
     $BatchTesterFolderPath = Join-Path $toolsPath "BatchTester"
     $BatchTesterPath = Join-Path $BatchTesterFolderPath "PsharpBatchTester.exe"
-    
+
     #Running the batch test.
-    & $BatchTesterPath $configFilePath $AuthConfigPath
+    & $BatchTesterPath $configFilePath $AuthConfigPath $arguments
 }
 
 Export-ModuleMember RunPSharpBatchTester
